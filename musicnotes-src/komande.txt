@@ -1,0 +1,32 @@
+# Installation
+nom install
+
+# Dev run - http://localhost:5173/musicnotes
+npm run dev
+
+# Start tests
+npm test
+
+# Auto repeats tests between builds
+npm run test:watch
+
+# Production builds
+npm run build
+# Result:
+musicnotes-src/
+└── dist/
+    ├── index.html
+    └── assets/
+        ├── index-[hash].js
+        └── index-[hash].css
+
+# Test production version - http://localhost:4173/musicnotes
+npm run preview
+
+
+# Publish to real page - Linux
+mkdir -p ../musicnotes
+cp -a dist/. ../musicnotes/
+# Publish to real page - Windows
+New-Item -ItemType Directory -Force ..\musicnotes
+Copy-Item .\dist\* ..\musicnotes\ -Recurse -Force
