@@ -21,7 +21,7 @@ export default function MusicStaff({ question }: Props) {
 
       const width = Math.max(280, Math.floor(container.clientWidth));
 
-      const height = 260;
+      const height = 185;
 
       // Remove the previous SVG before drawing a new one.
       container.replaceChildren();
@@ -32,11 +32,22 @@ export default function MusicStaff({ question }: Props) {
 
       const context = renderer.getContext();
 
-      const staveWidth = Math.min(width - 60, 180);
+      // Enlarge all musical elements by 20%.
+      const scale = 1.2;
 
-      const staveX = (width - staveWidth) / 2;
+      context.scale(scale, scale);
 
-      const stave = new Stave(staveX, 82, staveWidth);
+      // Width is calculated with scaling in mind.
+      const logicalWidth = width / scale;
+
+      // SHorter stave for a single note.
+      const staveWidth = Math.min(logicalWidth - 40, 160);
+
+      // Horizontal centering.
+      const staveX = (logicalWidth - staveWidth) / 2;
+
+      // Vertical position.
+      const stave = new Stave(staveX, 14, staveWidth);
 
       stave.addClef(question.clef);
 
@@ -60,10 +71,6 @@ export default function MusicStaff({ question }: Props) {
       voice.addTickables([note]);
 
       new Formatter().joinVoices([voice]).formatToStave([voice], stave);
-
-      new Formatter().joinVoices([voice]).formatToStave([voice], stave);
-
-      voice.draw(context, stave);
 
       voice.draw(context, stave);
     }
