@@ -412,9 +412,10 @@ a:focus-visible {
 
 .app-footer {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
     margin-top: auto;
     padding: 35px 0 25px;
     color: #8191aa;

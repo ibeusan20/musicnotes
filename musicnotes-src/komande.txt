@@ -23,6 +23,7 @@ musicnotes-src/
 # Test production version - http://localhost:4173/musicnotes
 npm run preview
 
+# Changer version --> package.json   -----------------------------------------------
 
 # Publish to real page - Linux
 mkdir -p ../musicnotes

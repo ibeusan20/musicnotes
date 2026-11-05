@@ -1,18 +1,14 @@
 import { useEffect, useReducer, useRef, useState, type FormEvent } from "react";
-
 import MusicStaff from "./components/MusicStaff";
 import Scoreboard from "./components/Scoreboard";
 import SettingsPanel from "./components/SettingsPanel";
-
 import {
   expectedAnswer,
   generateQuestion,
   type Question,
   type Settings,
 } from "./domain/music";
-
 import { checkAnswer } from "./domain/quiz";
-
 import {
   emptySession,
   emptyTotal,
@@ -20,9 +16,9 @@ import {
   type SessionStats,
   type TotalStats,
 } from "./domain/statistics";
-
 import { loadStoredData, saveStoredData } from "./lib/storage";
 import "./App.css";
+import { version } from '../package.json';
 
 type Phase = "asking" | "answered";
 
@@ -381,6 +377,7 @@ export default function App() {
       </main>
 
       <footer className="app-footer">
+        <span>v{version}</span>
         <span>MusicNotes — vježbanje glazbene notacije</span>
         <span>Statistika se sprema lokalno.</span>
       </footer>
