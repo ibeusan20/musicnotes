@@ -22,7 +22,6 @@ import {
 } from "./domain/statistics";
 
 import { loadStoredData, saveStoredData } from "./lib/storage";
-
 import "./App.css";
 
 type Phase = "asking" | "answered";
@@ -137,12 +136,12 @@ export default function App() {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Sačuvaj postavke i ukupnu statistiku.
+  // Keep session stats in memory only
   useEffect(() => {
     saveStoredData(state.settings, state.total);
   }, [state.settings, state.total]);
 
-  // Fokusiraj unos nakon novog pitanja.
+  // Focus the input after a new question is generated.
   useEffect(() => {
     inputRef.current?.focus();
   }, [state.question]);
@@ -166,8 +165,7 @@ export default function App() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    // Kada je odgovor već provjeren,
-    // Enter znači sljedeće pitanje.
+    // When the answer has already been checked, Enter means next question.
     if (state.phase === "answered") {
       nextQuestion();
       return;

@@ -1,5 +1,4 @@
 import { DEFAULT_SETTINGS, type Settings } from "../domain/music";
-
 import { emptyTotal, type TotalStats } from "../domain/statistics";
 
 const STORAGE_KEY = "musicnotes.v1";

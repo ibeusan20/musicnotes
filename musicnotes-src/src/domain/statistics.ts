@@ -33,7 +33,6 @@ export function recordResult(
   total: TotalStats;
 } {
   const streak = correct ? session.streak + 1 : 0;
-
   const bestStreak = Math.max(session.bestStreak, streak);
 
   return {

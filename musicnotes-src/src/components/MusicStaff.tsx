@@ -20,7 +20,6 @@ export default function MusicStaff({ question }: Props) {
       if (!container) return;
 
       const width = Math.max(280, Math.floor(container.clientWidth));
-
       const height = 185;
 
       // Remove the previous SVG before drawing a new one.
@@ -39,23 +38,18 @@ export default function MusicStaff({ question }: Props) {
 
       // Width is calculated with scaling in mind.
       const logicalWidth = width / scale;
-
       // SHorter stave for a single note.
       const staveWidth = Math.min(logicalWidth - 40, 160);
-
       // Horizontal centering.
       const staveX = (logicalWidth - staveWidth) / 2;
-
       // Vertical position.
       const stave = new Stave(staveX, 14, staveWidth);
 
       stave.addClef(question.clef);
-
       stave.setContext(context).draw();
 
       // VexFlow uses B, but we display H to the user (croatian notation).
       const key = `${question.letter.toLowerCase()}/${question.octave}`;
-
       // Cijela nota (bez vrata) za čist prikaz.
       const note = new StaveNote({
         keys: [key],
@@ -69,9 +63,7 @@ export default function MusicStaff({ question }: Props) {
       });
 
       voice.addTickables([note]);
-
       new Formatter().joinVoices([voice]).formatToStave([voice], stave);
-
       voice.draw(context, stave);
     }
 

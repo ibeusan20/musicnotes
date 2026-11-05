@@ -11,7 +11,6 @@ interface Props {
 
 export default function Scoreboard({ session, total }: Props) {
   const sessionCount = session.correct + session.incorrect;
-
   const totalCount = total.correct + total.incorrect;
 
   return (

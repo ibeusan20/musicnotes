@@ -1,12 +1,8 @@
 export const LETTERS = ["C", "D", "E", "F", "G", "A", "B"] as const;
-
 export type Letter = (typeof LETTERS)[number];
-
 export type Clef = "treble" | "bass";
 export type ClefSelection = Clef | "random";
-
 export type Difficulty = "basic" | "extended" | "advanced";
-
 export type AnswerMode = "letter" | "letter-octave";
 
 export interface Settings {
@@ -27,19 +23,16 @@ export const DEFAULT_SETTINGS: Settings = {
   answerMode: "letter",
 };
 
-// Svaka dijatonska pozicija odgovara jednom
-// koraku: C, D, E, F, G, A, B.
-// Oktava se računa po sedam pozicija.
+// Every diatonic position corresponds to one step: C, D, E, F, G, A, B. Ottava is calculated by seven positions.
 
-// Donja crta violinskog ključa: E4.
-// Donja crta basovskog ključa: G2.
+// Bottom line of the treble clef is E4, which is 4 octaves and 4 diatonic steps from C0.
+// Bottom line of the bass clef is G2, which is 2 octaves and 4 diatonic steps from C0.
 const BOTTOM_LINE: Record<Clef, number> = {
   treble: 4 * 7 + 2,
   bass: 2 * 7 + 4,
 };
 
-// Jedna pomoćna crta odgovara udaljenosti
-// od dva dijatonska koraka izvan crtovlja.
+// Jedna pomoćna crta odgovara udaljenosti od dva dijatonska koraka izvan crtovlja.
 const EXTRA_STEPS: Record<Difficulty, number> = {
   basic: 0,
   extended: 4,
@@ -64,7 +57,7 @@ export function createNotePool(settings: Settings): Question[] {
   return clefs.flatMap((clef) => {
     const bottom = BOTTOM_LINE[clef];
 
-    // Osnovnih devet pozicija, pet crta + četiri međuprostora.
+    // Basic nine positions, five lines + four spaces. Extended and advanced add extra ledger lines.
     const count = 9 + 2 * extra;
 
     return Array.from({ length: count }, (_, i) => ({
@@ -84,7 +77,7 @@ export function generateQuestion(
 ): Question {
   const pool = createNotePool(settings);
 
-  // Ne prikazuje potpuno isto pitanje dva puta uzastopno.
+  // Does not guarantee that the same question won't appear again later.
   const candidates = previous
     ? pool.filter((item) => !sameQuestion(item, previous))
     : pool;
@@ -95,7 +88,7 @@ export function generateQuestion(
 }
 
 export function noteLabel(question: Question, includeOctave = false): string {
-  // U hrvatskoj notaciji B natural = H.
+  // In croatian notation, B natural is represented as H.
   const letter = question.letter === "B" ? "H" : question.letter;
 
   return includeOctave ? `${letter}${question.octave}` : letter;
