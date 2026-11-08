@@ -26,8 +26,8 @@ export default function SettingsPanel({ settings, onChange }: Props) {
               })
             }>
             <option value="off">Bez predznaka</option>
-
             <option value="single">Jednostruki (♯, ♭, ♮)</option>
+            <option value="double">Svi predznaci (♯, ♭, ♮, 𝄪, 𝄫)</option>
           </select>
         </label>
 

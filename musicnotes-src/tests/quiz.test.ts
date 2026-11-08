@@ -53,4 +53,54 @@ describe("Provjera odgovora", () => {
     expect(checkAnswer("his", note, "letter-octave")).toBe("invalid");
     expect(checkAnswer("his4", note, "letter")).toBe("invalid");
   });
+
+  it.each([
+    ["C", "cisis"],
+    ["D", "disis"],
+    ["E", "eisis"],
+    ["F", "fisis"],
+    ["G", "gisis"],
+    ["A", "aisis"],
+    ["B", "hisis"],
+  ] as const)("prihvaća dvostruko povišeni %s", (letter, name) => {
+    const note: Question = {
+      letter,
+      octave: 4,
+      clef: "treble",
+      accidental: "double-sharp",
+    };
+
+    expect(checkAnswer(name, note, "letter")).toBe("correct");
+
+    expect(checkAnswer(`${name}4`, note, "letter-octave")).toBe("correct");
+  });
+
+  it("prihvaća sve dvostruko snižene note", () => {
+    const names = ["ceses", "deses", "eses", "feses", "geses", "asas", "heses"];
+    const letters = ["C", "D", "E", "F", "G", "A", "B"] as const;
+
+    for (const [index, name] of names.entries()) {
+      const note: Question = {
+        letter: letters[index],
+        octave: 4,
+        clef: "treble",
+        accidental: "double-flat",
+      };
+      expect(checkAnswer(name, note, "letter")).toBe("correct");
+      expect(checkAnswer(`${name}4`, note, "letter-octave")).toBe("correct");
+    }
+  });
+
+  it("ne miješa jednostruke i dvostruke predznake", () => {
+    const note: Question = {
+      letter: "E",
+      octave: 4,
+      clef: "treble",
+      accidental: "double-flat",
+    };
+
+    expect(checkAnswer("eses", note, "letter")).toBe("correct");
+    expect(checkAnswer("es", note, "letter")).toBe("incorrect");
+    expect(checkAnswer("e", note, "letter")).toBe("incorrect");
+  });
 });

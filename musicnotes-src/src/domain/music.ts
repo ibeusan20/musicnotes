@@ -4,8 +4,15 @@ export type Clef = "treble" | "bass";
 export type ClefSelection = Clef | "random";
 export type Difficulty = "basic" | "extended" | "advanced";
 export type AnswerMode = "letter" | "letter-octave";
-export type AccidentalLevel = "off" | "single";
-export type AccidentalType = "none" | "natural" | "sharp" | "flat";
+export type AccidentalLevel = "off" | "single" | "double";
+
+export type AccidentalType =
+  | "none"
+  | "natural"
+  | "sharp"
+  | "flat"
+  | "double-sharp"
+  | "double-flat";
 
 export interface Settings {
   clef: ClefSelection;
@@ -48,6 +55,12 @@ const SINGLE_ACCIDENTALS: readonly AccidentalType[] = [
   "flat",
 ];
 
+const DOUBLE_ACCIDENTALS: readonly AccidentalType[] = [
+  ...SINGLE_ACCIDENTALS,
+  "double-sharp",
+  "double-flat",
+];
+
 export function indexToPitch(
   index: number,
 ): Pick<Question, "letter" | "octave"> {
@@ -64,7 +77,11 @@ export function createNotePool(settings: Settings): Question[] {
   const extra = EXTRA_STEPS[settings.difficulty];
 
   const accidentals: readonly AccidentalType[] =
-    settings.accidentalLevel === "off" ? ["none"] : SINGLE_ACCIDENTALS;
+    settings.accidentalLevel === "off"
+      ? ["none"]
+      : settings.accidentalLevel === "single"
+        ? SINGLE_ACCIDENTALS
+        : DOUBLE_ACCIDENTALS;
 
   return clefs.flatMap((clef) => {
     const bottom = BOTTOM_LINE[clef];
@@ -123,6 +140,14 @@ export function noteName(
       if (question.letter === "E") return "es";
       if (question.letter === "A") return "as";
       return `${base}es`;
+
+    case "double-sharp":
+      return `${base}isis`;
+
+    case "double-flat":
+      if (question.letter === "E") return "eses";
+      if (question.letter === "A") return "asas";
+      return `${base}eses`;
   }
 }
 

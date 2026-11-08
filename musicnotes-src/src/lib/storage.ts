@@ -48,7 +48,9 @@ function parseSettings(value: unknown): Settings {
         : DEFAULT_SETTINGS.answerMode,
 
     accidentalLevel:
-      accidentalLevel === "off" || accidentalLevel === "single"
+      accidentalLevel === "off" ||
+      accidentalLevel === "single" ||
+      accidentalLevel === "double"
         ? accidentalLevel
         : DEFAULT_SETTINGS.accidentalLevel,
   };

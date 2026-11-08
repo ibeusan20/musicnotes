@@ -66,6 +66,8 @@ export default function MusicStaff({ question }: Props) {
         natural: "n",
         sharp: "#",
         flat: "b",
+        "double-sharp": "##",
+        "double-flat": "bb",
       };
 
       if (question.accidental !== "none") {

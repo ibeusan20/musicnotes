@@ -9,11 +9,14 @@ import {
 
 export type AnswerResult = "invalid" | "correct" | "incorrect";
 
+
 const ACCIDENTAL_TYPES: readonly AccidentalType[] = [
-  "none",
-  "natural",
-  "sharp",
-  "flat",
+  'none',
+  'natural',
+  'sharp',
+  'flat',
+  'double-sharp',
+  'double-flat',
 ];
 
 // Single source of truth for all valid names.

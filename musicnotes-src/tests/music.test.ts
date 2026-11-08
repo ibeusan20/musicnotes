@@ -109,6 +109,53 @@ describe("Predznaci", () => {
       }),
     ).toBe(letter === "B" ? "h" : letter.toLowerCase());
   });
+
+  it("generira svih šest vrsta predznaka", () => {
+    const pool = createNotePool({
+      ...settings,
+      accidentalLevel: "double",
+    });
+
+    expect(pool).toHaveLength(54);
+
+    expect(new Set(pool.map((q) => q.accidental))).toEqual(
+      new Set([
+        "none",
+        "natural",
+        "sharp",
+        "flat",
+        "double-sharp",
+        "double-flat",
+      ]),
+    );
+  });
+
+  it.each([
+    ["C", "cisis", "ceses"],
+    ["D", "disis", "deses"],
+    ["E", "eisis", "eses"],
+    ["F", "fisis", "feses"],
+    ["G", "gisis", "geses"],
+    ["A", "aisis", "asas"],
+    ["B", "hisis", "heses"],
+  ] as const)(
+    "ispravno imenuje dvostruke predznake za %s",
+    (letter, sharp, flat) => {
+      expect(
+        noteName({
+          letter,
+          accidental: "double-sharp",
+        }),
+      ).toBe(sharp);
+
+      expect(
+        noteName({
+          letter,
+          accidental: "double-flat",
+        }),
+      ).toBe(flat);
+    },
+  );
 });
 
 describe("Generiranje pitanja", () => {
