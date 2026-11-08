@@ -7,8 +7,11 @@ import {
   StaveNote,
   Voice,
 } from "vexflow";
-import type { Question } from "../domain/music";
-import type { AccidentalType } from "../domain/music";
+import {
+  CLEF_NAMES,
+  type AccidentalType,
+  type Question,
+} from "../domain/music";
 
 interface Props {
   question: Question;
@@ -97,7 +100,7 @@ export default function MusicStaff({ question }: Props) {
     };
   }, [question]);
 
-  const clefName = question.clef === "treble" ? "violinskom" : "basovskom";
+  const clefName = CLEF_NAMES[question.clef].toLowerCase();
 
   return (
     <div

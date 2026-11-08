@@ -48,14 +48,14 @@ describe("Glazbeni raspon", () => {
     });
   });
 
-  it("nasumični ključ uključuje oba ključa", () => {
+  it("nasumični ključ uključuje sve ključeve", () => {
     const pool = createNotePool({
       ...settings,
       clef: "random",
     });
 
     expect(new Set(pool.map((q) => q.clef))).toEqual(
-      new Set(["treble", "bass"]),
+      new Set(["treble", "bass", "alto", "tenor"]),
     );
   });
 });
@@ -187,5 +187,81 @@ describe("Generiranje pitanja", () => {
         accidental: "natural",
       }),
     ).toBe(false);
+  });
+});
+
+describe("Altovski i tenorski ključ", () => {
+  it("altovski ključ ima C4 na srednjoj crti", () => {
+    const pool = createNotePool({
+      ...settings,
+      clef: "alto",
+    });
+
+    expect(pool).toHaveLength(9);
+
+    expect(pool[0]).toMatchObject({
+      letter: "F",
+      octave: 3,
+    });
+
+    expect(pool[4]).toMatchObject({
+      letter: "C",
+      octave: 4,
+    });
+
+    expect(pool[8]).toMatchObject({
+      letter: "G",
+      octave: 4,
+    });
+  });
+
+  it("tenorski ključ ima C4 na četvrtoj crti", () => {
+    const pool = createNotePool({
+      ...settings,
+      clef: "tenor",
+    });
+
+    expect(pool).toHaveLength(9);
+
+    expect(pool[0]).toMatchObject({
+      letter: "D",
+      octave: 3,
+    });
+
+    expect(pool[6]).toMatchObject({
+      letter: "C",
+      octave: 4,
+    });
+
+    expect(pool[8]).toMatchObject({
+      letter: "E",
+      octave: 4,
+    });
+  });
+
+  it("nasumični odabir uključuje sva četiri ključa", () => {
+    const pool = createNotePool({
+      ...settings,
+      clef: "random",
+    });
+
+    expect(pool).toHaveLength(36);
+
+    expect(new Set(pool.map((q) => q.clef))).toEqual(
+      new Set(["treble", "bass", "alto", "tenor"]),
+    );
+  });
+
+  it("napredna težina podržava pomoćne crte", () => {
+    for (const clef of ["alto", "tenor"] as const) {
+      const pool = createNotePool({
+        ...settings,
+        clef,
+        difficulty: "advanced",
+      });
+
+      expect(pool).toHaveLength(25);
+      expect(pool.every((q) => q.clef === clef)).toBe(true);
+    }
   });
 });

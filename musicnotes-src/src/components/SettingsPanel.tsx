@@ -45,6 +45,8 @@ export default function SettingsPanel({ settings, onChange }: Props) {
             <option value="random">Nasumično</option>
             <option value="treble">Violinski ključ</option>
             <option value="bass">Basovski ključ</option>
+            <option value="alto">Altovski ključ</option>
+            <option value="tenor">Tenorski ključ</option>
           </select>
         </label>
 

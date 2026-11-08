@@ -7,6 +7,7 @@ import {
   generateQuestion,
   type Question,
   type Settings,
+  CLEF_NAMES,
 } from "./domain/music";
 import { checkAnswer } from "./domain/quiz";
 import {
@@ -233,9 +234,8 @@ export default function App() {
     state.settings.answerMode === "letter-octave",
   );
 
-  const clefName =
-    state.question.clef === "treble" ? "Violinski ključ" : "Basovski ključ";
-
+  const clefName = `${CLEF_NAMES[state.question.clef]} ključ`;
+  
   return (
     <div className="app-shell">
       <header className="app-header">

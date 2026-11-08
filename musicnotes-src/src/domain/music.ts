@@ -1,6 +1,6 @@
 export const LETTERS = ["C", "D", "E", "F", "G", "A", "B"] as const;
 export type Letter = (typeof LETTERS)[number];
-export type Clef = "treble" | "bass";
+export type Clef = "treble" | "bass" | "alto" | "tenor";
 export type ClefSelection = Clef | "random";
 export type Difficulty = "basic" | "extended" | "advanced";
 export type AnswerMode = "letter" | "letter-octave";
@@ -35,11 +35,22 @@ export const DEFAULT_SETTINGS: Settings = {
   accidentalLevel: "off",
 };
 
+export const CLEF_NAMES: Record<Clef, string> = {
+  treble: "Violinski",
+  bass: "Basovski",
+  alto: "Altovski",
+  tenor: "Tenorski",
+};
+
+export const CLEFS: readonly Clef[] = ["treble", "bass", "alto", "tenor"];
+
 // Diatonic index: C0 = 0.
 // Every octave has seven positions.
 const BOTTOM_LINE: Record<Clef, number> = {
   treble: 4 * 7 + 2, // E4
   bass: 2 * 7 + 4, // G2
+  alto: 3 * 7 + 3, // F3
+  tenor: 3 * 7 + 1, // D3
 };
 
 const EXTRA_STEPS: Record<Difficulty, number> = {
@@ -71,8 +82,8 @@ export function indexToPitch(
 }
 
 export function createNotePool(settings: Settings): Question[] {
-  const clefs: Clef[] =
-    settings.clef === "random" ? ["treble", "bass"] : [settings.clef];
+  const clefs: readonly Clef[] =
+    settings.clef === "random" ? CLEFS : [settings.clef];
 
   const extra = EXTRA_STEPS[settings.difficulty];
 

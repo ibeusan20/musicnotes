@@ -31,7 +31,11 @@ function parseSettings(value: unknown): Settings {
 
   return {
     clef:
-      clef === "treble" || clef === "bass" || clef === "random"
+      clef === "treble" ||
+      clef === "bass" ||
+      clef === "alto" ||
+      clef === "tenor" ||
+      clef === "random"
         ? clef
         : DEFAULT_SETTINGS.clef,
 
