@@ -8,6 +8,7 @@ import {
   Voice,
 } from "vexflow";
 import type { Question } from "../domain/music";
+import type { AccidentalType } from "../domain/music";
 
 interface Props {
   question: Question;
@@ -62,7 +63,7 @@ export default function MusicStaff({ question }: Props) {
         clef: question.clef,
       });
 
-      const symbols: Record<string, string> = {
+      const symbols: Record<Exclude<AccidentalType, "none">, string> = {
         natural: "n",
         sharp: "#",
         flat: "b",
