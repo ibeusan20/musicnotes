@@ -1,7 +1,12 @@
 import { useEffect, useRef } from "react";
-
-import { Formatter, Renderer, Stave, StaveNote, Voice } from "vexflow";
-
+import {
+  Accidental,
+  Formatter,
+  Renderer,
+  Stave,
+  StaveNote,
+  Voice,
+} from "vexflow";
 import type { Question } from "../domain/music";
 
 interface Props {
@@ -56,6 +61,16 @@ export default function MusicStaff({ question }: Props) {
         duration: "w",
         clef: question.clef,
       });
+
+      const symbols: Record<string, string> = {
+        natural: "n",
+        sharp: "#",
+        flat: "b",
+      };
+
+      if (question.accidental !== "none") {
+        note.addModifier(new Accidental(symbols[question.accidental]), 0);
+      }
 
       const voice = new Voice({
         numBeats: 4,

@@ -14,6 +14,24 @@ export default function SettingsPanel({ settings, onChange }: Props) {
 
       <div className="settings-grid">
         <label className="field">
+          <span>Predznaci</span>
+
+          <select
+            value={settings.accidentalLevel}
+            onChange={(event) =>
+              onChange({
+                ...settings,
+                accidentalLevel: event.target
+                  .value as Settings["accidentalLevel"],
+              })
+            }>
+            <option value="off">Bez predznaka</option>
+
+            <option value="single">Jednostruki (♯, ♭, ♮)</option>
+          </select>
+        </label>
+
+        <label className="field">
           <span>Glazbeni ključ</span>
 
           <select

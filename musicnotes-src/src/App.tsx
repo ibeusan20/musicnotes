@@ -3,7 +3,7 @@ import MusicStaff from "./components/MusicStaff";
 import Scoreboard from "./components/Scoreboard";
 import SettingsPanel from "./components/SettingsPanel";
 import {
-  expectedAnswer,
+  noteLabel,
   generateQuestion,
   type Question,
   type Settings,
@@ -18,7 +18,7 @@ import {
 } from "./domain/statistics";
 import { loadStoredData, saveStoredData } from "./lib/storage";
 import "./App.css";
-import { version } from '../package.json';
+import { version } from "../package.json";
 
 type Phase = "asking" | "answered";
 
@@ -176,8 +176,8 @@ export default function App() {
     if (result === "invalid") {
       setInputError(
         state.settings.answerMode === "letter"
-          ? "Upiši C, D, E, F, G, A ili H."
-          : "Upiši naziv i oktavu, npr. C4 ili H3.",
+          ? "Upiši valjan naziv note, npr. C, cis ili es."
+          : "Upiši naziv i oktavu, npr. cis4 ili es3.",
       );
 
       return;
@@ -228,9 +228,9 @@ export default function App() {
 
   const isAnswered = state.phase === "answered";
 
-  const correctAnswer = expectedAnswer(
+  const correctAnswer = noteLabel(
     state.question,
-    state.settings.answerMode,
+    state.settings.answerMode === "letter-octave",
   );
 
   const clefName =
@@ -279,7 +279,7 @@ export default function App() {
                   readOnly={isAnswered}
                   maxLength={12}
                   autoComplete="off"
-                  autoCapitalize="characters"
+                  autoCapitalize="off"
                   spellCheck={false}
                   placeholder={
                     state.settings.answerMode === "letter"

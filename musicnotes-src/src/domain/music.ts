@@ -4,40 +4,49 @@ export type Clef = "treble" | "bass";
 export type ClefSelection = Clef | "random";
 export type Difficulty = "basic" | "extended" | "advanced";
 export type AnswerMode = "letter" | "letter-octave";
+export type AccidentalLevel = "off" | "single";
+export type AccidentalType = "none" | "natural" | "sharp" | "flat";
 
 export interface Settings {
   clef: ClefSelection;
   difficulty: Difficulty;
   answerMode: AnswerMode;
+  accidentalLevel: AccidentalLevel;
 }
 
 export interface Question {
   letter: Letter;
   octave: number;
   clef: Clef;
+  accidental: AccidentalType;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   clef: "random",
   difficulty: "basic",
   answerMode: "letter",
+  accidentalLevel: "off",
 };
 
-// Every diatonic position corresponds to one step: C, D, E, F, G, A, B. Ottava is calculated by seven positions.
-
-// Bottom line of the treble clef is E4, which is 4 octaves and 4 diatonic steps from C0.
-// Bottom line of the bass clef is G2, which is 2 octaves and 4 diatonic steps from C0.
+// Diatonic index: C0 = 0.
+// Every octave has seven positions.
 const BOTTOM_LINE: Record<Clef, number> = {
-  treble: 4 * 7 + 2,
-  bass: 2 * 7 + 4,
+  treble: 4 * 7 + 2, // E4
+  bass: 2 * 7 + 4, // G2
 };
 
-// Jedna pomoćna crta odgovara udaljenosti od dva dijatonska koraka izvan crtovlja.
 const EXTRA_STEPS: Record<Difficulty, number> = {
   basic: 0,
   extended: 4,
   advanced: 8,
 };
+
+const SINGLE_ACCIDENTALS: readonly AccidentalType[] = [
+  "none",
+  "natural",
+  "sharp",
+  "flat",
+];
 
 export function indexToPitch(
   index: number,
@@ -54,21 +63,32 @@ export function createNotePool(settings: Settings): Question[] {
 
   const extra = EXTRA_STEPS[settings.difficulty];
 
+  const accidentals: readonly AccidentalType[] =
+    settings.accidentalLevel === "off" ? ["none"] : SINGLE_ACCIDENTALS;
+
   return clefs.flatMap((clef) => {
     const bottom = BOTTOM_LINE[clef];
 
-    // Basic nine positions, five lines + four spaces. Extended and advanced add extra ledger lines.
-    const count = 9 + 2 * extra;
-
-    return Array.from({ length: count }, (_, i) => ({
-      ...indexToPitch(bottom - extra + i),
-      clef,
-    }));
+    // 9 basic positions + extra positions.
+    return Array.from({ length: 9 + extra * 2 }, (_, index) =>
+      indexToPitch(bottom - extra + index),
+    ).flatMap((pitch) =>
+      accidentals.map((accidental) => ({
+        ...pitch,
+        clef,
+        accidental,
+      })),
+    );
   });
 }
 
 export function sameQuestion(a: Question, b: Question): boolean {
-  return a.clef === b.clef && a.letter === b.letter && a.octave === b.octave;
+  return (
+    a.clef === b.clef &&
+    a.letter === b.letter &&
+    a.octave === b.octave &&
+    a.accidental === b.accidental
+  );
 }
 
 export function generateQuestion(
@@ -77,23 +97,50 @@ export function generateQuestion(
 ): Question {
   const pool = createNotePool(settings);
 
-  // Does not guarantee that the same question won't appear again later.
   const candidates = previous
-    ? pool.filter((item) => !sameQuestion(item, previous))
+    ? pool.filter((note) => !sameQuestion(note, previous))
     : pool;
 
-  const index = Math.floor(Math.random() * candidates.length);
-
-  return candidates[index];
+  return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
-export function noteLabel(question: Question, includeOctave = false): string {
-  // In croatian notation, B natural is represented as H.
-  const letter = question.letter === "B" ? "H" : question.letter;
+// Musical name does not depend on octave or clef.
+export function noteName(
+  question: Pick<Question, "letter" | "accidental">,
+): string {
+  // VexFlow: B. Croatian notation: H.
+  const base = question.letter === "B" ? "h" : question.letter.toLowerCase();
 
-  return includeOctave ? `${letter}${question.octave}` : letter;
+  switch (question.accidental) {
+    case "none":
+    case "natural":
+      return base;
+
+    case "sharp":
+      return `${base}is`;
+
+    case "flat":
+      if (question.letter === "E") return "es";
+      if (question.letter === "A") return "as";
+      return `${base}es`;
+  }
 }
 
+// Canonical form for answer comparison.
 export function expectedAnswer(question: Question, mode: AnswerMode): string {
-  return noteLabel(question, mode === "letter-octave");
+  const name = noteName(question);
+
+  return mode === "letter-octave" ? `${name}${question.octave}` : name;
+}
+
+// Shape displayed in feedback.
+export function noteLabel(question: Question, includeOctave = false): string {
+  const name = noteName(question);
+
+  const display =
+    question.accidental === "none" || question.accidental === "natural"
+      ? name.toUpperCase()
+      : name;
+
+  return includeOctave ? `${display}${question.octave}` : display;
 }

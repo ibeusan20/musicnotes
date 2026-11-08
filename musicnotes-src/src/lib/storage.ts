@@ -27,6 +27,7 @@ function parseSettings(value: unknown): Settings {
   const clef = value.clef;
   const difficulty = value.difficulty;
   const answerMode = value.answerMode;
+  const accidentalLevel = value.accidentalLevel;
 
   return {
     clef:
@@ -45,6 +46,11 @@ function parseSettings(value: unknown): Settings {
       answerMode === "letter" || answerMode === "letter-octave"
         ? answerMode
         : DEFAULT_SETTINGS.answerMode,
+
+    accidentalLevel:
+      accidentalLevel === "off" || accidentalLevel === "single"
+        ? accidentalLevel
+        : DEFAULT_SETTINGS.accidentalLevel,
   };
 }
 

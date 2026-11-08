@@ -190,7 +190,6 @@ a:focus-visible {
     border-radius: 10px;
     font-size: 1.1rem;
     font-weight: 600;
-    text-transform: uppercase;
 }
 
 .answer-row input::placeholder {
