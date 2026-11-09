@@ -1,0 +1,84 @@
+
+name: Test, build and publish MusicNotes
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: musicnotes-production
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Source repository
+      - name: Checkout MusicNotes
+        uses: actions/checkout@v7
+        with:
+          path: app
+          persist-credentials: false
+
+      # 2. Node.js and npm cache
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      # 3. Install exact locked dependencies
+      - name: Install dependencies
+        working-directory: app
+        run: npm ci
+
+      # 4. Run tests
+      - name: Run tests
+        working-directory: app
+        run: npm test
+
+      # 5. TypeScript check and production build
+      - name: Build application
+        working-directory: app
+        run: npm run build
+
+      # 6. Ensure the build produced an entry point
+      - name: Check build output
+        run: test -s app/dist/index.html
+
+      # 7. Destination website repository
+      - name: Checkout website repository
+        uses: actions/checkout@v7
+        with:
+          repository: ibeusan20/ibeusan20.github.io
+          ref: main
+          path: site
+          token: ${{ secrets.SITE_REPO_TOKEN }}
+
+      # 8. Replace only the musicnotes directory
+      - name: Replace published MusicNotes files
+        run: |
+          mkdir -p site/musicnotes
+          rsync -a --delete app/dist/ site/musicnotes/
+
+      # 9. Commit and push only if necessary
+      - name: Commit and push only if files changed
+        run: |
+          git -C site add -f -A -- musicnotes/
+
+          if git -C site diff --cached --quiet; then
+            echo "No deployment changes. Skipping commit."
+            exit 0
+          fi
+
+          git -C site config user.name "github-actions[bot]"
+          git -C site config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git -C site commit -m "deploy(musicnotes): ${{ github.sha }}"
+          git -C site push origin HEAD:main
