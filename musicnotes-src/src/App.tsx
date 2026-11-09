@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useReducer,
   useRef,
   useState,
@@ -10,14 +11,17 @@ import {
 import MusicStaff from "./components/MusicStaff";
 import Scoreboard from "./components/Scoreboard";
 import SettingsPanel from "./components/SettingsPanel";
+
 import {
   noteLabel,
   generateQuestion,
+  type Clef,
   type Question,
   type Settings,
-  CLEF_NAMES,
 } from "./domain/music";
+
 import { checkAnswer } from "./domain/quiz";
+
 import {
   emptySession,
   emptyTotal,
@@ -25,10 +29,25 @@ import {
   type SessionStats,
   type TotalStats,
 } from "./domain/statistics";
+
 import { loadStoredData, saveStoredData } from "./lib/storage";
 import { playNote } from "./lib/audio";
-import { version } from "../package.json";
 
+import {
+  loadUiPreferences,
+  resolveTheme,
+  saveUiPreferences,
+  type ThemeSetting,
+} from "./lib/uiPreferences";
+
+import {
+  translations,
+  type Language,
+  type Translate,
+  type TranslationKey,
+} from "./i18n/translations";
+
+import { version } from "../package.json";
 import "./App.css";
 
 type Phase = "asking" | "answered";
@@ -43,27 +62,22 @@ interface PracticeState {
 }
 
 type Action =
-  | {
-      type: "submit";
-      correct: boolean;
-    }
-  | {
-      type: "next";
-      question: Question;
-    }
+  | { type: "submit"; correct: boolean }
+  | { type: "next"; question: Question }
   | {
       type: "change-settings";
       settings: Settings;
       question: Question;
     }
-  | {
-      type: "reset-session";
-      question: Question;
-    }
-  | {
-      type: "reset-all";
-      question: Question;
-    };
+  | { type: "reset-session"; question: Question }
+  | { type: "reset-all"; question: Question };
+
+const CLEF_LABELS: Record<Clef, TranslationKey> = {
+  treble: "clefTreble",
+  bass: "clefBass",
+  alto: "clefAlto",
+  tenor: "clefTenor",
+};
 
 function createInitialState(): PracticeState {
   const saved = loadStoredData();
@@ -81,9 +95,7 @@ function createInitialState(): PracticeState {
 function reducer(state: PracticeState, action: Action): PracticeState {
   switch (action.type) {
     case "submit": {
-      if (state.phase !== "asking") {
-        return state;
-      }
+      if (state.phase !== "asking") return state;
 
       const updated = recordResult(state.session, state.total, action.correct);
 
@@ -138,32 +150,78 @@ function reducer(state: PracticeState, action: Action): PracticeState {
 export default function App() {
   const [state, dispatch] = useReducer(reducer, undefined, createInitialState);
 
+  const [ui, setUi] = useState(loadUiPreferences);
   const [answer, setAnswer] = useState("");
-  const [inputError, setInputError] = useState("");
-  const [audioError, setAudioError] = useState("");
 
+  const [inputError, setInputError] = useState<
+    "invalidLetter" | "invalidOctave" | null
+  >(null);
+
+  const [audioError, setAudioError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Audio: play the currently displayed note.
+  const t: Translate = (key) => translations[ui.language][key];
+
+  const isAnswered = state.phase === "answered";
+
+  const correctAnswer = noteLabel(
+    state.question,
+    state.settings.answerMode === "letter-octave",
+  );
+
+  const clefName = t(CLEF_LABELS[state.question.clef]);
+
+  // Play the currently displayed note.
   const playCurrentNote = useCallback(() => {
-    setAudioError("");
+    setAudioError(false);
 
     void playNote(state.question).catch(() => {
-      setAudioError("Nije moguće reproducirati zvuk.");
+      setAudioError(true);
     });
   }, [state.question]);
 
-  // Keep session stats in memory only.
+  // Persist quiz settings and all-time statistics.
   useEffect(() => {
     saveStoredData(state.settings, state.total);
   }, [state.settings, state.total]);
 
-  // Focus the input after a new question is generated.
+  // Persist UI settings and update document language.
+  useEffect(() => {
+    saveUiPreferences(ui);
+
+    document.documentElement.lang = ui.language;
+    document.title = translations[ui.language].documentTitle;
+  }, [ui]);
+
+  // Apply the selected theme and follow OS changes.
+  useLayoutEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const applyTheme = () => {
+      const theme = resolveTheme(ui.theme, media.matches);
+
+      document.documentElement.dataset.theme = theme;
+
+      document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute("content", theme === "dark" ? "#0b1220" : "#f5f7fb");
+    };
+
+    applyTheme();
+
+    media.addEventListener("change", applyTheme);
+
+    return () => {
+      media.removeEventListener("change", applyTheme);
+    };
+  }, [ui.theme]);
+
+  // Focus the input after a new question.
   useEffect(() => {
     inputRef.current?.focus();
   }, [state.question]);
 
-  // Audio: press P to play the current note.
+  // Press P to play the current note.
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (
@@ -178,7 +236,6 @@ export default function App() {
 
       const target = event.target;
 
-      // Do not intercept other editable controls.
       if (
         target instanceof HTMLElement &&
         (target.isContentEditable ||
@@ -200,8 +257,8 @@ export default function App() {
 
   function clearInput() {
     setAnswer("");
-    setInputError("");
-    setAudioError("");
+    setInputError(null);
+    setAudioError(false);
   }
 
   function nextQuestion() {
@@ -218,8 +275,7 @@ export default function App() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    // When the answer has already been checked, Enter means next question.
-    if (state.phase === "answered") {
+    if (isAnswered) {
       nextQuestion();
       return;
     }
@@ -233,10 +289,9 @@ export default function App() {
     if (result === "invalid") {
       setInputError(
         state.settings.answerMode === "letter"
-          ? "Upiši valjan naziv note, npr. C, cis ili es."
-          : "Upiši naziv i oktavu, npr. cis4 ili es3.",
+          ? "invalidLetter"
+          : "invalidOctave",
       );
-
       return;
     }
 
@@ -245,7 +300,7 @@ export default function App() {
       correct: result === "correct",
     });
 
-    setInputError("");
+    setInputError(null);
   }
 
   function handleSettingsChange(settings: Settings) {
@@ -268,12 +323,9 @@ export default function App() {
   }
 
   function resetAll() {
-    const confirmed = window.confirm(
-      "Želiš li obrisati svu ukupnu statistiku? " +
-        "Ova radnja ne može se poništiti.",
-    );
-
-    if (!confirmed) return;
+    if (!window.confirm(t("resetConfirm"))) {
+      return;
+    }
 
     clearInput();
 
@@ -283,29 +335,52 @@ export default function App() {
     });
   }
 
-  const isAnswered = state.phase === "answered";
-
-  const correctAnswer = noteLabel(
-    state.question,
-    state.settings.answerMode === "letter-octave",
-  );
-
-  const clefName = `${CLEF_NAMES[state.question.clef]} ključ`;
-
   return (
     <div className="app-shell">
       <header className="app-header">
-        <div>
+        <div className="header-intro">
           <a className="home-link" href="/">
-            ← Natrag
+            {t("back")}
           </a>
 
           <h1>MusicNotes</h1>
-
-          <p>Nauči prepoznavati note na crtovlju.</p>
+          <p>{t("subtitle")}</p>
         </div>
 
-        <div className="header-tag">Music note trainer</div>
+        <div className="header-controls">
+          <label className="header-control">
+            <span>{t("language")}</span>
+
+            <select
+              value={ui.language}
+              onChange={(event) =>
+                setUi((previous) => ({
+                  ...previous,
+                  language: event.target.value as Language,
+                }))
+              }>
+              <option value="hr">Hrvatski</option>
+              <option value="en">English</option>
+            </select>
+          </label>
+
+          <label className="header-control">
+            <span>{t("appearance")}</span>
+
+            <select
+              value={ui.theme}
+              onChange={(event) =>
+                setUi((previous) => ({
+                  ...previous,
+                  theme: event.target.value as ThemeSetting,
+                }))
+              }>
+              <option value="system">{t("themeSystem")}</option>
+              <option value="light">{t("themeLight")}</option>
+              <option value="dark">{t("themeDark")}</option>
+            </select>
+          </label>
+        </div>
       </header>
 
       <main>
@@ -313,35 +388,41 @@ export default function App() {
           <section className="panel practice-panel">
             <div className="section-heading">
               <div>
-                <span className="eyebrow">PREPOZNAJ NOTU</span>
+                <span className="eyebrow">{t("practiceLabel")}</span>
 
-                <h2>Koja je ovo nota?</h2>
+                <h2>{t("question")}</h2>
               </div>
 
               <span className="clef-tag">{clefName}</span>
             </div>
 
-            <MusicStaff question={state.question} />
+            <MusicStaff
+              question={state.question}
+              ariaLabel={
+                `${t("staffDescription")} ` +
+                `${clefName}. ` +
+                t("staffInstruction")
+              }
+            />
 
-            {/* Audio: playback button */}
             <div className="audio-controls">
               <button
                 type="button"
                 className="button secondary"
                 onClick={playCurrentNote}
                 aria-keyshortcuts="P">
-                ▶ Reproduciraj notu (P)
+                {t("play")}
               </button>
 
               {audioError && (
                 <p className="input-error" role="alert">
-                  {audioError}
+                  {t("audioError")}
                 </p>
               )}
             </div>
 
             <form className="answer-form" onSubmit={handleSubmit}>
-              <label htmlFor="note-answer">Tvoj odgovor</label>
+              <label htmlFor="note-answer">{t("yourAnswer")}</label>
 
               <div className="answer-row">
                 <input
@@ -354,16 +435,16 @@ export default function App() {
                   autoComplete="off"
                   autoCapitalize="off"
                   spellCheck={false}
-                  placeholder={
+                  placeholder={t(
                     state.settings.answerMode === "letter"
-                      ? "Npr. C ili H"
-                      : "Npr. C4 ili H3"
-                  }
-                  aria-invalid={Boolean(inputError)}
+                      ? "placeholderLetter"
+                      : "placeholderOctave",
+                  )}
+                  aria-invalid={inputError !== null}
                   aria-describedby={inputError ? "answer-error" : undefined}
                   onChange={(event) => {
                     setAnswer(event.target.value);
-                    setInputError("");
+                    setInputError(null);
                   }}
                   onKeyDown={(event) => {
                     if (isAnswered && event.key === "Enter") {
@@ -374,13 +455,13 @@ export default function App() {
                 />
 
                 <button className="button primary" type="submit">
-                  {isAnswered ? "Sljedeća nota" : "Provjeri"}
+                  {t(isAnswered ? "next" : "check")}
                 </button>
               </div>
 
               {inputError && (
                 <p id="answer-error" className="input-error" role="alert">
-                  {inputError}
+                  {t(inputError)}
                 </p>
               )}
             </form>
@@ -399,49 +480,54 @@ export default function App() {
               {isAnswered ? (
                 state.lastCorrect ? (
                   <>
-                    <strong>Točno!</strong>
-                    <span>Odgovor je {correctAnswer}.</span>
+                    <strong>{t("correctFeedback")}</strong>
+                    <span>
+                      {t("answerIs")} {correctAnswer}.
+                    </span>
                   </>
                 ) : (
                   <>
-                    <strong>Netočno.</strong>
-                    <span>Točan odgovor: {correctAnswer}.</span>
+                    <strong>{t("incorrectFeedback")}</strong>
+                    <span>
+                      {t("correctAnswer")} {correctAnswer}.
+                    </span>
                   </>
                 )
               ) : (
-                <span>Upiši naziv note i pritisni Enter.</span>
+                <span>{t("waiting")}</span>
               )}
             </div>
 
-            <p className="keyboard-hint">
-              Enter — provjeri odgovor ili prijeđi na sljedeću notu.
-            </p>
+            <p className="keyboard-hint">{t("keyboardHint")}</p>
+
+            <p className="notation-hint">{t("notationHint")}</p>
           </section>
 
           <div className="sidebar">
-            <Scoreboard session={state.session} total={state.total} />
+            <Scoreboard session={state.session} total={state.total} t={t} />
 
             <SettingsPanel
               settings={state.settings}
               onChange={handleSettingsChange}
+              t={t}
             />
 
             <section className="panel reset-panel">
-              <h2>Resetiranje</h2>
+              <h2>{t("reset")}</h2>
 
               <div className="reset-actions">
                 <button
                   type="button"
                   className="button secondary"
                   onClick={resetSession}>
-                  Resetiraj sesiju
+                  {t("resetSession")}
                 </button>
 
                 <button
                   type="button"
                   className="button danger"
                   onClick={resetAll}>
-                  Obriši svu statistiku
+                  {t("resetAll")}
                 </button>
               </div>
             </section>
@@ -451,8 +537,8 @@ export default function App() {
 
       <footer className="app-footer">
         <span>v{version}</span>
-        <span>MusicNotes — vježbanje glazbene notacije</span>
-        <span>Statistika se sprema lokalno.</span>
+        <span>{t("footer")}</span>
+        <span>{t("storageNotice")}</span>
       </footer>
     </div>
   );

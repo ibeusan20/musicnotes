@@ -1,0 +1,178 @@
+const hr = {
+  documentTitle: "MusicNotes | Vježbanje nota",
+  back: "← Natrag",
+  subtitle: "Nauči prepoznavati note na crtovlju.",
+  appTag: "Vježbanje nota",
+
+  language: "Jezik",
+  appearance: "Tema",
+  themeSystem: "Sustav",
+  themeLight: "Svijetla",
+  themeDark: "Tamna",
+
+  practiceLabel: "PREPOZNAJ NOTU",
+  question: "Koja je ovo nota?",
+
+  clefTreble: "Violinski ključ",
+  clefBass: "Basovski ključ",
+  clefAlto: "Altovski ključ",
+  clefTenor: "Tenorski ključ",
+
+  staffDescription: "Notno crtovlje. Ključ:",
+  staffInstruction: "Prepoznaj notu.",
+
+  play: "▶ Reproduciraj notu (P)",
+  audioError: "Nije moguće reproducirati zvuk.",
+
+  yourAnswer: "Tvoj odgovor",
+  placeholderLetter: "Npr. C, cis ili es",
+  placeholderOctave: "Npr. cis4 ili es3",
+  check: "Provjeri",
+  next: "Sljedeća nota",
+
+  invalidLetter: "Upiši valjan naziv note, npr. C, cis ili es.",
+  invalidOctave: "Upiši naziv i oktavu, npr. cis4 ili es3.",
+
+  correctFeedback: "Točno!",
+  incorrectFeedback: "Netočno.",
+  answerIs: "Odgovor je",
+  correctAnswer: "Točan odgovor:",
+  waiting: "Upiši naziv note i pritisni Enter.",
+  keyboardHint: "Enter — provjeri odgovor ili prijeđi na sljedeću notu.",
+  notationHint: "Nazivi nota: hrvatski sustav (H, cis, es, hes...).",
+
+  stats: "Statistika",
+  session: "Trenutačna sesija",
+  totalStats: "Ukupna statistika",
+  correct: "Točno",
+  incorrect: "Pogrešno",
+  attempts: "Pokušaja",
+  totalAttempts: "Ukupno",
+  accuracy: "Točnost",
+  streak: "Niz",
+  bestStreak: "Najbolji niz",
+  record: "Rekord",
+
+  settings: "Postavke",
+  clef: "Glazbeni ključ",
+  clefRandom: "Nasumično (sva četiri)",
+  clefTrebleBass: "Violinski i basovski",
+
+  difficulty: "Težina",
+  difficultyBasic: "Osnovna — bez pomoćnih crta",
+  difficultyExtended: "Proširena — do 2 pomoćne crte",
+  difficultyAdvanced: "Napredna — do 4 pomoćne crte",
+
+  answerMode: "Način odgovaranja",
+  answerLetter: "Samo naziv note",
+  answerLetterOctave: "Naziv i oktava",
+
+  accidentals: "Predznaci",
+  accidentalOff: "Bez predznaka",
+  accidentalSingle: "Jednostruki (♯, ♭, ♮)",
+  accidentalDouble: "Svi (♯, ♭, ♮, 𝄪, 𝄫)",
+
+  settingsHelp:
+    "Promjena postavki vježbanja započinje novu sesiju. Ukupna statistika ostaje.",
+
+  reset: "Resetiranje",
+  resetSession: "Resetiraj sesiju",
+  resetAll: "Obriši svu statistiku",
+  resetConfirm:
+    "Želiš li obrisati svu ukupnu statistiku? Ova radnja ne može se poništiti.",
+
+  footer: "MusicNotes — vježbanje glazbene notacije",
+  storageNotice: "Statistika se sprema lokalno.",
+} as const;
+
+const en: Record<keyof typeof hr, string> = {
+  documentTitle: "MusicNotes | Note trainer",
+  back: "← Back",
+  subtitle: "Learn to recognize notes on the staff.",
+  appTag: "Music note trainer",
+
+  language: "Language",
+  appearance: "Theme",
+  themeSystem: "System",
+  themeLight: "Light",
+  themeDark: "Dark",
+
+  practiceLabel: "IDENTIFY THE NOTE",
+  question: "Which note is this?",
+
+  clefTreble: "Treble clef",
+  clefBass: "Bass clef",
+  clefAlto: "Alto clef",
+  clefTenor: "Tenor clef",
+
+  staffDescription: "Music staff. Clef:",
+  staffInstruction: "Identify the note.",
+
+  play: "▶ Play note (P)",
+  audioError: "Unable to play the note.",
+
+  yourAnswer: "Your answer",
+  placeholderLetter: "E.g. C, cis or es",
+  placeholderOctave: "E.g. cis4 or es3",
+  check: "Check",
+  next: "Next note",
+
+  invalidLetter: "Enter a valid note name, e.g. C, cis or es.",
+  invalidOctave: "Enter a note name and octave, e.g. cis4 or es3.",
+
+  correctFeedback: "Correct!",
+  incorrectFeedback: "Incorrect.",
+  answerIs: "The answer is",
+  correctAnswer: "Correct answer:",
+  waiting: "Type the note name and press Enter.",
+  keyboardHint: "Enter — check your answer or move to the next note.",
+  notationHint: "Note names use Croatian notation (H, cis, es, hes...).",
+
+  stats: "Statistics",
+  session: "Current session",
+  totalStats: "All-time statistics",
+  correct: "Correct",
+  incorrect: "Incorrect",
+  attempts: "Attempts",
+  totalAttempts: "Total",
+  accuracy: "Accuracy",
+  streak: "Streak",
+  bestStreak: "Best streak",
+  record: "Record",
+
+  settings: "Settings",
+  clef: "Clef",
+  clefRandom: "Random (all four)",
+  clefTrebleBass: "Treble and bass",
+
+  difficulty: "Difficulty",
+  difficultyBasic: "Basic — no ledger lines",
+  difficultyExtended: "Extended — up to 2 ledger lines",
+  difficultyAdvanced: "Advanced — up to 4 ledger lines",
+
+  answerMode: "Answer mode",
+  answerLetter: "Note name only",
+  answerLetterOctave: "Note name and octave",
+
+  accidentals: "Accidentals",
+  accidentalOff: "No accidentals",
+  accidentalSingle: "Single (♯, ♭, ♮)",
+  accidentalDouble: "All (♯, ♭, ♮, 𝄪, 𝄫)",
+
+  settingsHelp:
+    "Changing practice settings starts a new session. All-time statistics are kept.",
+
+  reset: "Reset",
+  resetSession: "Reset session",
+  resetAll: "Clear all statistics",
+  resetConfirm: "Clear all-time statistics? This action cannot be undone.",
+
+  footer: "MusicNotes — music notation practice",
+  storageNotice: "Statistics are stored in this browser.",
+};
+
+export type Language = "hr" | "en";
+export type TranslationKey = keyof typeof hr;
+export type Translate = (key: TranslationKey) => string;
+
+export const translations = { hr, en };

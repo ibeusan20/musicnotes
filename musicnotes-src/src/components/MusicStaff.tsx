@@ -8,16 +8,16 @@ import {
   Voice,
 } from "vexflow";
 import {
-  CLEF_NAMES,
   type AccidentalType,
   type Question,
 } from "../domain/music";
 
 interface Props {
   question: Question;
+  ariaLabel: string;
 }
 
-export default function MusicStaff({ question }: Props) {
+export default function MusicStaff({ question, ariaLabel }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -100,15 +100,8 @@ export default function MusicStaff({ question }: Props) {
     };
   }, [question]);
 
-  const clefName = CLEF_NAMES[question.clef].toLowerCase();
-
   return (
-    <div
-      className="staff-surface"
-      role="img"
-      aria-label={
-        `Notno crtovlje u ${clefName} ključu. ` + "Odredi naziv prikazane note."
-      }>
+    <div className="staff-surface" role="img" aria-label={ariaLabel}>
       <div ref={containerRef} className="staff-canvas" />
     </div>
   );
