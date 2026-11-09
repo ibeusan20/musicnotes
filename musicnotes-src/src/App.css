@@ -257,7 +257,7 @@ select:focus-visible {
 
 .staff-canvas {
     width: 100%;
-    height: 260px;
+    height: 185px;
 }
 
 .staff-canvas svg {
@@ -564,57 +564,53 @@ select:focus-visible {
     }
 }
 
+
 @media (max-width: 620px) {
-    .app-shell {
-        width: calc(100% - 24px);
-    }
-
     .app-header {
-        padding-top: 24px;
+        padding: 16px 0 18px;
+        gap: 12px;
     }
 
-    .header-controls {
-        width: 100%;
-    }
-
-    .header-control {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .header-control select {
-        width: 100%;
-        min-width: 0;
-    }
-
-    .sidebar {
-        display: flex;
+    .app-header h1 {
+        margin: 8px 0 4px;
     }
 
     .panel {
-        padding: 18px;
-        border-radius: 14px;
+        padding: 14px;
+    }
+
+    .section-heading {
+        margin-bottom: 12px;
+    }
+
+    .audio-controls {
+        margin-top: 10px;
+    }
+
+    .answer-form {
+        margin-top: 14px;
     }
 
     .answer-row {
-        flex-direction: column;
+        flex-direction: row;
+        gap: 8px;
+    }
+
+    .answer-row input {
+        padding: 10px 12px;
+        font-size: 16px;
     }
 
     .answer-row .button {
-        width: 100%;
+        width: auto;
+        padding: 10px 12px;
+        white-space: nowrap;
     }
 
-    .stat {
-        padding: 12px 8px;
-    }
-
-    .stat strong {
-        font-size: 1.3rem;
-    }
-
-    .app-footer {
-        flex-direction: column;
-        gap: 6px;
+    .feedback {
+        min-height: 60px;
+        margin-top: 12px;
+        padding: 12px;
     }
 }
 

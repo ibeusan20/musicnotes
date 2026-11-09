@@ -216,9 +216,11 @@ export default function App() {
     };
   }, [ui.theme]);
 
-  // Focus the input after a new question.
+  // Focus the input.
   useEffect(() => {
-    inputRef.current?.focus();
+    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      inputRef.current?.focus({ preventScroll: true });
+    }
   }, [state.question]);
 
   // Press P to play the current note.
@@ -430,7 +432,6 @@ export default function App() {
                   ref={inputRef}
                   type="text"
                   value={answer}
-                  readOnly={isAnswered}
                   maxLength={12}
                   autoComplete="off"
                   autoCapitalize="off"
@@ -443,6 +444,8 @@ export default function App() {
                   aria-invalid={inputError !== null}
                   aria-describedby={inputError ? "answer-error" : undefined}
                   onChange={(event) => {
+                    if (isAnswered) return;
+
                     setAnswer(event.target.value);
                     setInputError(null);
                   }}
