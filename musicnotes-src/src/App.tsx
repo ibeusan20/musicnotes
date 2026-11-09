@@ -1,4 +1,12 @@
-import { useEffect, useReducer, useRef, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
+
 import MusicStaff from "./components/MusicStaff";
 import Scoreboard from "./components/Scoreboard";
 import SettingsPanel from "./components/SettingsPanel";
@@ -18,8 +26,10 @@ import {
   type TotalStats,
 } from "./domain/statistics";
 import { loadStoredData, saveStoredData } from "./lib/storage";
-import "./App.css";
+import { playNote } from "./lib/audio";
 import { version } from "../package.json";
+
+import "./App.css";
 
 type Phase = "asking" | "answered";
 
@@ -130,10 +140,20 @@ export default function App() {
 
   const [answer, setAnswer] = useState("");
   const [inputError, setInputError] = useState("");
+  const [audioError, setAudioError] = useState("");
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Keep session stats in memory only
+  // Audio: play the currently displayed note.
+  const playCurrentNote = useCallback(() => {
+    setAudioError("");
+
+    void playNote(state.question).catch(() => {
+      setAudioError("Nije moguće reproducirati zvuk.");
+    });
+  }, [state.question]);
+
+  // Keep session stats in memory only.
   useEffect(() => {
     saveStoredData(state.settings, state.total);
   }, [state.settings, state.total]);
@@ -143,9 +163,45 @@ export default function App() {
     inputRef.current?.focus();
   }, [state.question]);
 
+  // Audio: press P to play the current note.
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (
+        event.key.toLowerCase() !== "p" ||
+        event.repeat ||
+        event.ctrlKey ||
+        event.altKey ||
+        event.metaKey
+      ) {
+        return;
+      }
+
+      const target = event.target;
+
+      // Do not intercept other editable controls.
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable ||
+          target.matches("textarea, select, input:not(#note-answer)"))
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      playCurrentNote();
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [playCurrentNote]);
+
   function clearInput() {
     setAnswer("");
     setInputError("");
+    setAudioError("");
   }
 
   function nextQuestion() {
@@ -235,7 +291,7 @@ export default function App() {
   );
 
   const clefName = `${CLEF_NAMES[state.question.clef]} ključ`;
-  
+
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -266,6 +322,23 @@ export default function App() {
             </div>
 
             <MusicStaff question={state.question} />
+
+            {/* Audio: playback button */}
+            <div className="audio-controls">
+              <button
+                type="button"
+                className="button secondary"
+                onClick={playCurrentNote}
+                aria-keyshortcuts="P">
+                ▶ Reproduciraj notu (P)
+              </button>
+
+              {audioError && (
+                <p className="input-error" role="alert">
+                  {audioError}
+                </p>
+              )}
+            </div>
 
             <form className="answer-form" onSubmit={handleSubmit}>
               <label htmlFor="note-answer">Tvoj odgovor</label>

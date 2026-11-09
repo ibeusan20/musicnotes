@@ -5,6 +5,7 @@ import {
   expectedAnswer,
   type AccidentalType,
   type Question,
+  LETTERS,
 } from "../src/domain/music";
 
 function question(accidental: AccidentalType): Question {
@@ -102,5 +103,34 @@ describe("Provjera odgovora", () => {
     expect(checkAnswer("eses", note, "letter")).toBe("correct");
     expect(checkAnswer("es", note, "letter")).toBe("incorrect");
     expect(checkAnswer("e", note, "letter")).toBe("incorrect");
+  });
+
+  it("prihvaća svaki generirani glazbeni naziv", () => {
+    const accidentals = [
+      "none",
+      "natural",
+      "sharp",
+      "flat",
+      "double-sharp",
+      "double-flat",
+    ] as const;
+
+    for (const letter of LETTERS) {
+      for (const accidental of accidentals) {
+        const note: Question = {
+          letter,
+          accidental,
+          octave: 4,
+          clef: "treble",
+        };
+
+        const name = expectedAnswer(note, "letter");
+        const withOctave = expectedAnswer(note, "letter-octave");
+
+        expect(checkAnswer(name, note, "letter")).toBe("correct");
+
+        expect(checkAnswer(withOctave, note, "letter-octave")).toBe("correct");
+      }
+    }
   });
 });
