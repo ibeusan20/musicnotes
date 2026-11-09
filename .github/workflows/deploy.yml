@@ -31,26 +31,26 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-          cache-dependency-path: app/package-lock.json
+          cache-dependency-path: app/musicnotes-src/package-lock.json
 
       # 3. Install exact locked dependencies
       - name: Install dependencies
-        working-directory: app
+        working-directory: app/musicnotes-src
         run: npm ci
 
       # 4. Run tests
       - name: Run tests
-        working-directory: app
+        working-directory: app/musicnotes-src
         run: npm test
 
       # 5. TypeScript check and production build
       - name: Build application
-        working-directory: app
+        working-directory: app/musicnotes-src
         run: npm run build
 
       # 6. Ensure the build produced an entry point
       - name: Check build output
-        run: test -s app/dist/index.html
+        run: test -s app/musicnotes-src/dist/index.html
 
       # 7. Destination website repository
       - name: Checkout website repository
@@ -65,7 +65,7 @@ jobs:
       - name: Replace published MusicNotes files
         run: |
           mkdir -p site/musicnotes
-          rsync -a --delete app/dist/ site/musicnotes/
+          rsync -a --delete app/musicnotes-src/dist/ site/musicnotes/
 
       # 9. Commit and push only if necessary
       - name: Commit and push only if files changed
@@ -82,3 +82,4 @@ jobs:
 
           git -C site commit -m "deploy(musicnotes): ${{ github.sha }}"
           git -C site push origin HEAD:main
+
