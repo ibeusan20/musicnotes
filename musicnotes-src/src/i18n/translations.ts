@@ -73,7 +73,7 @@ const hr = {
   accidentalDouble: "Svi (♯, ♭, ♮, 𝄪, 𝄫)",
 
   settingsHelp:
-    "Promjena postavki vježbanja započinje novu sesiju. Ukupna statistika ostaje.",
+    "Promjena postavki vježbanja započinje novu sesiju. Ukupna statistika ostaje spremljena.",
 
   reset: "Resetiranje",
   resetSession: "Resetiraj sesiju",
