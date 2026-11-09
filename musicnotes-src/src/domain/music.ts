@@ -1,7 +1,7 @@
 export const LETTERS = ["C", "D", "E", "F", "G", "A", "B"] as const;
 export type Letter = (typeof LETTERS)[number];
 export type Clef = "treble" | "bass" | "alto" | "tenor";
-export type ClefSelection = Clef | "random";
+export type ClefSelection = Clef | "random" | "treble-bass";
 export type Difficulty = "basic" | "extended" | "advanced";
 export type AnswerMode = "letter" | "letter-octave";
 export type AccidentalLevel = "off" | "single" | "double";
@@ -29,7 +29,7 @@ export interface Question {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  clef: "random",
+  clef: "treble",
   difficulty: "basic",
   answerMode: "letter",
   accidentalLevel: "off",
@@ -83,7 +83,11 @@ export function indexToPitch(
 
 export function createNotePool(settings: Settings): Question[] {
   const clefs: readonly Clef[] =
-    settings.clef === "random" ? CLEFS : [settings.clef];
+    settings.clef === "random"
+      ? CLEFS
+      : settings.clef === "treble-bass"
+        ? ["treble", "bass"]
+        : [settings.clef];
 
   const extra = EXTRA_STEPS[settings.difficulty];
 

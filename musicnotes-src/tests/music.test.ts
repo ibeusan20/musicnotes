@@ -58,6 +58,19 @@ describe("Glazbeni raspon", () => {
       new Set(["treble", "bass", "alto", "tenor"]),
     );
   });
+
+  it("kombinira samo violinski i basovski ključ", () => {
+    const pool = createNotePool({
+      ...settings,
+      clef: "treble-bass",
+    });
+
+    expect(pool).toHaveLength(18);
+
+    expect(new Set(pool.map((q) => q.clef))).toEqual(
+      new Set(["treble", "bass"]),
+    );
+  });
 });
 
 describe("Predznaci", () => {
