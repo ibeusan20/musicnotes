@@ -65,7 +65,7 @@ const EXTRA_STEPS: Record<Difficulty, number> = {
 const ACCIDENTALS_BY_LEVEL: Record<AccidentalLevel, readonly AccidentalType[]> =
   {
     off: ["none"],
-    single: ACCIDENTALS.slice(0, 4),
+    single: ["none", "natural", "sharp", "flat"],
     double: ACCIDENTALS,
   };
 
