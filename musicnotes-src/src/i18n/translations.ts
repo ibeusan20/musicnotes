@@ -81,7 +81,7 @@ const hr = {
   resetConfirm:
     "Želiš li obrisati svu ukupnu statistiku? Ova radnja ne može se poništiti.",
 
-  footer: "MusicNotes — vježbanje glazbene notacije",
+  footer: "MusicNotes - vježbanje glazbene notacije",
   storageNotice: "Statistika se sprema lokalno.",
 } as const;
 
