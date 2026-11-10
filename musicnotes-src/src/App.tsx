@@ -451,8 +451,12 @@ export default function App() {
 
       <footer className="app-footer">
         <span>v{version}</span>
+        <span>·</span>
         <span>{t("footer")}</span>
+        <span>·</span>
         <span>{t("storageNotice")}</span>
+        <span>·</span>
+        <span>© 2026 Ivan Beusan</span>
       </footer>
     </div>
   );
