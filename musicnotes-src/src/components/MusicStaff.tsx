@@ -7,15 +7,15 @@ import {
   StaveNote,
   Voice,
 } from "vexflow";
-import {
-  type AccidentalType,
-  type Question,
-} from "../domain/music";
+import { type AccidentalType, type Question } from "../domain/music";
 
 interface Props {
   question: Question;
   ariaLabel: string;
 }
+
+const STAFF_HEIGHT = 185;
+const STAFF_SCALE = 1.2;
 
 export default function MusicStaff({ question, ariaLabel }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -28,25 +28,22 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
     function draw() {
       if (!container) return;
 
-      const width = Math.max(280, Math.floor(container.clientWidth));
-      const height = 185;
+      const width = Math.floor(container.clientWidth);
+      if (width <= 0) return;
 
       // Remove the previous SVG before drawing a new one.
       container.replaceChildren();
 
       const renderer = new Renderer(container, Renderer.Backends.SVG);
 
-      renderer.resize(width, height);
+      renderer.resize(width, STAFF_HEIGHT);
 
       const context = renderer.getContext();
 
-      // Enlarge all musical elements by 20%.
-      const scale = 1.2;
+      context.scale(STAFF_SCALE, STAFF_SCALE);
 
-      context.scale(scale, scale);
+      const logicalWidth = width / STAFF_SCALE;
 
-      // Width is calculated with scaling in mind.
-      const logicalWidth = width / scale;
       // SHorter stave for a single note.
       const staveWidth = Math.min(logicalWidth - 40, 160);
       // Horizontal centering.
@@ -102,7 +99,11 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
 
   return (
     <div className="staff-surface" role="img" aria-label={ariaLabel}>
-      <div ref={containerRef} className="staff-canvas" />
+      <div
+        ref={containerRef}
+        className="staff-canvas"
+        style={{ height: STAFF_HEIGHT }}
+      />
     </div>
   );
 }

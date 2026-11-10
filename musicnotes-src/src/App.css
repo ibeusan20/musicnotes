@@ -257,7 +257,6 @@ select:focus-visible {
 
 .staff-canvas {
     width: 100%;
-    height: 185px;
 }
 
 .staff-canvas svg {
@@ -307,10 +306,6 @@ select:focus-visible {
 .answer-row input::placeholder {
     color: var(--muted);
     font-weight: 400;
-}
-
-.answer-row input[readonly] {
-    opacity: 0.75;
 }
 
 /* Buttons */
@@ -612,6 +607,13 @@ select:focus-visible {
         margin-top: 12px;
         padding: 12px;
     }
+
+
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+    }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
