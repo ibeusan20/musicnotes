@@ -20,3 +20,9 @@ On every push to `main` (or manual trigger):
 **Live:** [ivanbeusan.from.hr/musicnotes](https://ivanbeusan.from.hr/musicnotes/)
 
 **Workflow:** [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
+
+## License
+
+Copyright © 2026 Ivan Beusan.
+
+Licensed under the [MIT License](LICENSE).
