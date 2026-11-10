@@ -16,19 +16,12 @@ import {
   noteLabel,
   generateQuestion,
   type Clef,
-  type Question,
   type Settings,
 } from "./domain/music";
 
 import { checkAnswer } from "./domain/quiz";
 
-import {
-  emptySession,
-  emptyTotal,
-  recordResult,
-  type SessionStats,
-  type TotalStats,
-} from "./domain/statistics";
+import { createPracticeState, practiceReducer } from "./domain/practice";
 
 import { loadStoredData, saveStoredData } from "./lib/storage";
 import { playNote } from "./lib/audio";
@@ -50,28 +43,6 @@ import {
 import { version } from "../package.json";
 import "./App.css";
 
-type Phase = "asking" | "answered";
-
-interface PracticeState {
-  settings: Settings;
-  question: Question;
-  session: SessionStats;
-  total: TotalStats;
-  phase: Phase;
-  lastCorrect: boolean | null;
-}
-
-type Action =
-  | { type: "submit"; correct: boolean }
-  | { type: "next"; question: Question }
-  | {
-      type: "change-settings";
-      settings: Settings;
-      question: Question;
-    }
-  | { type: "reset-session"; question: Question }
-  | { type: "reset-all"; question: Question };
-
 const CLEF_LABELS: Record<Clef, TranslationKey> = {
   treble: "clefTreble",
   bass: "clefBass",
@@ -79,76 +50,16 @@ const CLEF_LABELS: Record<Clef, TranslationKey> = {
   tenor: "clefTenor",
 };
 
-function createInitialState(): PracticeState {
-  const saved = loadStoredData();
-
-  return {
-    settings: saved.settings,
-    question: generateQuestion(saved.settings),
-    session: emptySession(),
-    total: saved.total,
-    phase: "asking",
-    lastCorrect: null,
-  };
-}
-
-function reducer(state: PracticeState, action: Action): PracticeState {
-  switch (action.type) {
-    case "submit": {
-      if (state.phase !== "asking") return state;
-
-      const updated = recordResult(state.session, state.total, action.correct);
-
-      return {
-        ...state,
-        session: updated.session,
-        total: updated.total,
-        phase: "answered",
-        lastCorrect: action.correct,
-      };
-    }
-
-    case "next":
-      return {
-        ...state,
-        question: action.question,
-        phase: "asking",
-        lastCorrect: null,
-      };
-
-    case "change-settings":
-      return {
-        ...state,
-        settings: action.settings,
-        question: action.question,
-        session: emptySession(),
-        phase: "asking",
-        lastCorrect: null,
-      };
-
-    case "reset-session":
-      return {
-        ...state,
-        question: action.question,
-        session: emptySession(),
-        phase: "asking",
-        lastCorrect: null,
-      };
-
-    case "reset-all":
-      return {
-        ...state,
-        question: action.question,
-        session: emptySession(),
-        total: emptyTotal(),
-        phase: "asking",
-        lastCorrect: null,
-      };
-  }
-}
-
 export default function App() {
-  const [state, dispatch] = useReducer(reducer, undefined, createInitialState);
+  const [state, dispatch] = useReducer(practiceReducer, undefined, () => {
+    const saved = loadStoredData();
+
+    return createPracticeState(
+      saved.settings,
+      saved.total,
+      generateQuestion(saved.settings),
+    );
+  });
 
   const [ui, setUi] = useState(loadUiPreferences);
   const [answer, setAnswer] = useState("");
