@@ -2,27 +2,17 @@ import {
   LETTERS,
   expectedAnswer,
   noteName,
-  type AccidentalType,
   type AnswerMode,
   type Question,
+  ACCIDENTALS,
 } from "./music";
 
 export type AnswerResult = "invalid" | "correct" | "incorrect";
 
-
-const ACCIDENTAL_TYPES: readonly AccidentalType[] = [
-  'none',
-  'natural',
-  'sharp',
-  'flat',
-  'double-sharp',
-  'double-flat',
-];
-
 // Single source of truth for all valid names.
 const VALID_NAMES = new Set(
   LETTERS.flatMap((letter) =>
-    ACCIDENTAL_TYPES.map((accidental) => noteName({ letter, accidental })),
+    ACCIDENTALS.map((accidental) => noteName({ letter, accidental })),
   ),
 );
 

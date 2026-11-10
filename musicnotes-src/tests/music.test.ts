@@ -7,6 +7,7 @@ import {
   sameQuestion,
   type Question,
   type Settings,
+  ACCIDENTALS,
 } from "../src/domain/music";
 
 const settings: Settings = {
@@ -169,6 +170,17 @@ describe("Predznaci", () => {
       ).toBe(flat);
     },
   );
+
+  it("svi predznaci dostupni su u punoj težini", () => {
+    const pool = createNotePool({
+      ...settings,
+      accidentalLevel: "double",
+    });
+
+    expect(new Set(pool.map((note) => note.accidental))).toEqual(
+      new Set(ACCIDENTALS),
+    );
+  });
 });
 
 describe("Generiranje pitanja", () => {

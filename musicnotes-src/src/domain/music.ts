@@ -6,13 +6,16 @@ export type Difficulty = "basic" | "extended" | "advanced";
 export type AnswerMode = "letter" | "letter-octave";
 export type AccidentalLevel = "off" | "single" | "double";
 
-export type AccidentalType =
-  | "none"
-  | "natural"
-  | "sharp"
-  | "flat"
-  | "double-sharp"
-  | "double-flat";
+export const ACCIDENTALS = [
+  "none",
+  "natural",
+  "sharp",
+  "flat",
+  "double-sharp",
+  "double-flat",
+] as const;
+
+export type AccidentalType = (typeof ACCIDENTALS)[number];
 
 export interface Settings {
   clef: ClefSelection;
@@ -59,18 +62,12 @@ const EXTRA_STEPS: Record<Difficulty, number> = {
   advanced: 8,
 };
 
-const SINGLE_ACCIDENTALS: readonly AccidentalType[] = [
-  "none",
-  "natural",
-  "sharp",
-  "flat",
-];
-
-const DOUBLE_ACCIDENTALS: readonly AccidentalType[] = [
-  ...SINGLE_ACCIDENTALS,
-  "double-sharp",
-  "double-flat",
-];
+const ACCIDENTALS_BY_LEVEL: Record<AccidentalLevel, readonly AccidentalType[]> =
+  {
+    off: ["none"],
+    single: ACCIDENTALS.slice(0, 4),
+    double: ACCIDENTALS,
+  };
 
 export function indexToPitch(
   index: number,
@@ -92,11 +89,7 @@ export function createNotePool(settings: Settings): Question[] {
   const extra = EXTRA_STEPS[settings.difficulty];
 
   const accidentals: readonly AccidentalType[] =
-    settings.accidentalLevel === "off"
-      ? ["none"]
-      : settings.accidentalLevel === "single"
-        ? SINGLE_ACCIDENTALS
-        : DOUBLE_ACCIDENTALS;
+    ACCIDENTALS_BY_LEVEL[settings.accidentalLevel];
 
   return clefs.flatMap((clef) => {
     const bottom = BOTTOM_LINE[clef];
