@@ -1,9 +1,14 @@
 
 name: Test, build and publish MusicNotes
 
+
 on:
   push:
     branches: [main]
+    paths:
+      - "musicnotes-src/**"
+      - ".github/workflows/deploy.yml"
+
   workflow_dispatch:
 
 permissions:
