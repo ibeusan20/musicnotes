@@ -15,7 +15,7 @@ interface Props {
 }
 
 const STAFF_HEIGHT = 185;
-const STAFF_SCALE = 1.2;
+const STAFF_SCALE = 1.3;
 
 export default function MusicStaff({ question, ariaLabel }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -45,11 +45,11 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
       const logicalWidth = width / STAFF_SCALE;
 
       // SHorter stave for a single note.
-      const staveWidth = Math.min(logicalWidth - 40, 160);
+      const staveWidth = Math.min(logicalWidth - 40, 230);
       // Horizontal centering.
       const staveX = (logicalWidth - staveWidth) / 2;
       // Vertical position.
-      const stave = new Stave(staveX, 14, staveWidth);
+      const stave = new Stave(staveX, 8, staveWidth);
 
       stave.addClef(question.clef);
       stave.setContext(context).draw();
