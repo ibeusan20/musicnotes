@@ -4,7 +4,8 @@ export type Clef = "treble" | "bass" | "alto" | "tenor";
 export type ClefSelection = Clef | "random" | "treble-bass";
 export type Difficulty = "basic" | "extended" | "advanced";
 export type AnswerMode = "letter" | "letter-octave";
-export type PracticeMode = "notes" | "intervals";
+export const PRACTICE_MODES = ["notes", "intervals"] as const;
+export type PracticeMode = (typeof PRACTICE_MODES)[number];
 export type IntervalLevel = "common" | "all";
 export type AccidentalLevel = "off" | "single" | "double";
 

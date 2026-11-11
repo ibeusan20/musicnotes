@@ -48,11 +48,15 @@ export default function App() {
     const saved = loadStoredData();
 
     return createPracticeState(
-      saved.settings,
-      saved.total,
-      generatePracticeQuestion(saved.settings),
+      saved.mode,
+      saved.profiles,
+      saved.legacyTotal,
+      generatePracticeQuestion(saved.profiles[saved.mode].settings),
     );
   });
+
+  const settings = state.profiles[state.mode].settings;
+  const total = state.profiles[state.mode].total;
 
   const [ui, setUi] = useState(loadUiPreferences);
   const [answer, setAnswer] = useState("");
@@ -74,7 +78,7 @@ export default function App() {
       ? (identifyInterval(state.question.value) ?? "")
       : noteLabel(
           state.question.value,
-          state.settings.answerMode === "letter-octave",
+          settings.answerMode === "letter-octave",
         );
 
   const currentClef =
@@ -97,8 +101,12 @@ export default function App() {
 
   // Persist quiz settings and all-time statistics.
   useEffect(() => {
-    saveStoredData(state.settings, state.total);
-  }, [state.settings, state.total]);
+    saveStoredData({
+      mode: state.mode,
+      profiles: state.profiles,
+      legacyTotal: state.legacyTotal,
+    });
+  }, [state.mode, state.profiles, state.legacyTotal]);
 
   // Persist UI settings and update document language.
   useEffect(() => {
@@ -180,7 +188,7 @@ export default function App() {
   }
 
   function nextQuestion() {
-    const question = generatePracticeQuestion(state.settings, state.question);
+    const question = generatePracticeQuestion(settings, state.question);
 
     clearInput();
 
@@ -201,13 +209,13 @@ export default function App() {
     const result =
       state.question.kind === "interval"
         ? checkIntervalAnswer(answer, state.question.value)
-        : checkAnswer(answer, state.question.value, state.settings.answerMode);
+        : checkAnswer(answer, state.question.value, settings.answerMode);
 
     if (result === "invalid") {
       setInputError(
         state.question.kind === "interval"
           ? "invalidInterval"
-          : state.settings.answerMode === "letter"
+          : settings.answerMode === "letter"
             ? "invalidLetter"
             : "invalidOctave",
       );
@@ -223,13 +231,25 @@ export default function App() {
     setInputError(null);
   }
 
-  function handleSettingsChange(settings: Settings) {
+  function handleSettingsChange(nextSettings: Settings) {
     clearInput();
+
+    if (nextSettings.practiceMode !== state.mode) {
+      const mode = nextSettings.practiceMode;
+
+      dispatch({
+        type: "switch-mode",
+        mode,
+        question: generatePracticeQuestion(state.profiles[mode].settings),
+      });
+
+      return;
+    }
 
     dispatch({
       type: "change-settings",
-      settings,
-      question: generatePracticeQuestion(settings, state.question),
+      settings: nextSettings,
+      question: generatePracticeQuestion(nextSettings, state.question),
     });
   }
 
@@ -238,7 +258,7 @@ export default function App() {
 
     dispatch({
       type: "reset-session",
-      question: generatePracticeQuestion(state.settings, state.question),
+      question: generatePracticeQuestion(settings, state.question),
     });
   }
 
@@ -251,7 +271,7 @@ export default function App() {
 
     dispatch({
       type: "reset-all",
-      question: generatePracticeQuestion(state.settings, state.question),
+      question: generatePracticeQuestion(settings, state.question),
     });
   }
 
@@ -271,10 +291,10 @@ export default function App() {
           <label className="header-control mode-control">
             <span>{t("practiceMode")}</span>
             <select
-              value={state.settings.practiceMode}
+              value={settings.practiceMode}
               onChange={(event) =>
                 handleSettingsChange({
-                  ...state.settings,
+                  ...settings,
                   practiceMode: event.target.value as Settings["practiceMode"],
                 })
               }>
@@ -383,7 +403,7 @@ export default function App() {
                   placeholder={t(
                     isIntervalMode
                       ? "placeholderInterval"
-                      : state.settings.answerMode === "letter"
+                      : settings.answerMode === "letter"
                         ? "placeholderLetter"
                         : "placeholderOctave",
                   )}
@@ -456,10 +476,15 @@ export default function App() {
           </section>
 
           <div className="sidebar">
-            <Scoreboard session={state.session} total={state.total} t={t} />
+            <Scoreboard
+              session={state.session}
+              total={total}
+              legacyTotal={state.legacyTotal}
+              t={t}
+            />
 
             <SettingsPanel
-              settings={state.settings}
+              settings={settings}
               onChange={handleSettingsChange}
               t={t}
             />

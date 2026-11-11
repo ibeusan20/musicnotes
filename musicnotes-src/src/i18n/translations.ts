@@ -101,7 +101,9 @@ const hr = {
   staffInstructionInterval: "Prepoznaj interval između dviju nota.",
   modeNotesShort: "Note",
   modeIntervalsShort: "Intervali",
-  } as const;
+  legacyStats: "Ranija zajednička statistika",
+  legacyStatsHelp: "Nije je moguće točno rasporediti po načinima vježbanja.",
+} as const;
 
 const en: Record<keyof typeof hr, string> = {
   documentTitle: "MusicNotes | Note trainer",
@@ -205,7 +207,10 @@ const en: Record<keyof typeof hr, string> = {
   staffInstructionInterval: "Identify the interval between the two notes.",
   modeNotesShort: "Notes",
   modeIntervalsShort: "Intervals",
-  };
+  legacyStats: "Previous shared statistics",
+  legacyStatsHelp:
+    "These results cannot be reliably assigned to individual practice modes.",
+};
 
 export type Language = "hr" | "en";
 export type TranslationKey = keyof typeof hr;
