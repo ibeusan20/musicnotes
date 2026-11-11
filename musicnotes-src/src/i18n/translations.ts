@@ -99,9 +99,39 @@ const hr = {
   intervalHint:
     "Note čitaj slijeva nadesno. č = čista, m = mala, v = velika, sm = smanjena, pov = povećana.",
   staffInstructionInterval: "Prepoznaj interval između dviju nota.",
+  legacyStats: "Ranija zajednička statistika",
+  legacyStatsHelp: "Nije je moguće točno rasporediti po načinima vježbanja.",
+
   modeNotesShort: "Note",
   modeIntervalsShort: "Intervali",
-  } as const;
+  modeScales: "Prepoznavanje ljestvica",
+  modeScalesShort: "Ljestvice",
+
+  scalePracticeLabel: "PREPOZNAJ LJESTVICU",
+  scaleQuestion: "Koja je ovo ljestvica?",
+  scaleLevel: "Vrste ljestvica",
+  scaleBasic: "Dur i prirodni mol",
+  scaleAll: "Dur i sve tri vrste mola",
+
+  placeholderScale: "Npr. A dur ili a harmonijski mol",
+  invalidScale: "Upiši valjan naziv ljestvice i, ako je potrebno, vrstu mola.",
+  waitingScale: "Odredi toniku i vrstu ljestvice pa pritisni Enter.",
+  scaleHint:
+    "Prirodni, harmonijski i melodijski mol razlikuju se po VI. i VII. stupnju.",
+  staffInstructionScale:
+    "Prepoznaj ljestvicu prema ključu, predznacima i notama.",
+  nextQuestion: "Sljedeće pitanje",
+
+  modeModes: "Prepoznavanje modusa",
+  modeModesShort: "Modusi",
+  modePracticeLabel: "PREPOZNAJ MODUS",
+  modeQuestion: "Koji je ovo modus?",
+  placeholderMode: "Npr. D dorski ili G miksolidijski",
+  waitingMode: "Odredi toniku i modus pa pritisni Enter.",
+  modeHint:
+    "Jonski, dorski, frigijski, lidijski, miksolidijski, eolski i lokrijski modus.",
+  staffInstructionMode: "Prepoznaj toniku i modus prikazane ljestvice.",
+} as const;
 
 const en: Record<keyof typeof hr, string> = {
   documentTitle: "MusicNotes | Note trainer",
@@ -203,9 +233,40 @@ const en: Record<keyof typeof hr, string> = {
   intervalHint:
     "Read notes from left to right. č = perfect, m = minor, v = major, sm = diminished, pov = augmented.",
   staffInstructionInterval: "Identify the interval between the two notes.",
+  legacyStats: "Previous shared statistics",
+  legacyStatsHelp:
+    "These results cannot be reliably assigned to individual practice modes.",
+
   modeNotesShort: "Notes",
   modeIntervalsShort: "Intervals",
-  };
+  modeScales: "Scale recognition",
+  modeScalesShort: "Scales",
+
+  scalePracticeLabel: "IDENTIFY THE SCALE",
+  scaleQuestion: "Which scale is this?",
+  scaleLevel: "Scale types",
+  scaleBasic: "Major and natural minor",
+  scaleAll: "Major and all three minor forms",
+
+  placeholderScale: "E.g. A dur or a harmonijski mol",
+  invalidScale: "Enter a valid scale name and, when required, the minor form.",
+  waitingScale: "Identify the tonic and scale type, then press Enter.",
+  scaleHint:
+    "Natural, harmonic and melodic minor differ in their sixth and seventh degrees.",
+  staffInstructionScale:
+    "Identify the scale from the clef, key signature and notes.",
+  nextQuestion: "Next question",
+
+  modeModes: "Mode recognition",
+  modeModesShort: "Modes",
+  modePracticeLabel: "IDENTIFY THE MODE",
+  modeQuestion: "Which mode is this?",
+  placeholderMode: "E.g. D dorski or G miksolidijski",
+  waitingMode: "Identify the tonic and mode, then press Enter.",
+  modeHint:
+    "Ionian, Dorian, Phrygian, Lydian, Mixolydian, Aeolian and Locrian.",
+  staffInstructionMode: "Identify the tonic and mode of the written scale.",
+};
 
 export type Language = "hr" | "en";
 export type TranslationKey = keyof typeof hr;

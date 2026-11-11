@@ -20,6 +20,7 @@ const STAFF_SCALE = 1.3;
 
 export default function MusicStaff({ question, ariaLabel }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const isScale = question.kind === "scale";
 
   useEffect(() => {
     const container = containerRef.current;
@@ -29,7 +30,16 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
     const notes =
       question.kind === "note"
         ? [question.value]
-        : [question.value.first, question.value.second];
+        : question.kind === "interval"
+          ? [question.value.first, question.value.second]
+          : question.value.notes;
+
+    const clef =
+      question.kind === "note"
+        ? question.value.clef
+        : question.kind === "interval"
+          ? question.value.first.clef
+          : question.value.clef;
 
     function draw() {
       if (!container) return;
@@ -37,32 +47,39 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
       const width = Math.floor(container.clientWidth);
       if (width <= 0) return;
 
-      // Remove the previous SVG before drawing a new one.
+      // Eight notes and up to seven key-signature accidentals
+      // need enough horizontal space on narrow screens.
+      const rendererWidth = isScale ? Math.max(width, 660) : width;
+
       container.replaceChildren();
 
       const renderer = new Renderer(container, Renderer.Backends.SVG);
 
-      renderer.resize(width, STAFF_HEIGHT);
+      renderer.resize(rendererWidth, STAFF_HEIGHT);
 
       const context = renderer.getContext();
+      const scale = isScale ? 1 : STAFF_SCALE;
 
-      context.scale(STAFF_SCALE, STAFF_SCALE);
+      context.scale(scale, scale);
 
-      const logicalWidth = width / STAFF_SCALE;
+      const logicalWidth = rendererWidth / scale;
 
       // SHorter stave for a single note.
-
-      const staveWidth = Math.min(
-        logicalWidth - 12,
-        notes.length === 1 ? 180 : 200,
-      );
+      const staveWidth = isScale
+        ? logicalWidth - 24
+        : Math.min(logicalWidth - 12, notes.length === 1 ? 120 : 120);
 
       // Horizontal centering.
       const staveX = (logicalWidth - staveWidth) / 2;
       // Vertical position.
       const stave = new Stave(staveX, 8, staveWidth);
 
-      stave.addClef(notes[0].clef);
+      stave.addClef(clef);
+
+      if (question.kind === "scale") {
+        stave.addKeySignature(question.value.keySignature);
+      }
+
       stave.setContext(context).draw();
 
       // VexFlow uses B, but we display H to the user (croatian notation).
@@ -81,7 +98,7 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
         const note = new StaveNote({
           keys: [key],
           duration: "w",
-          clef: source.clef,
+          clef,
         });
 
         if (source.accidental !== "none") {
@@ -92,9 +109,9 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
       });
 
       const voice = new Voice({
-        numBeats: staveNotes.length * 4,
-        beatValue: 4,
-      });
+  numBeats: staveNotes.length * 4,
+  beatValue: 4,
+});
 
       voice.addTickables(staveNotes);
 
@@ -116,7 +133,10 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
   }, [question]);
 
   return (
-    <div className="staff-surface" role="img" aria-label={ariaLabel}>
+    <div
+      className={isScale ? "staff-surface scale-staff" : "staff-surface"}
+      role="img"
+      aria-label={ariaLabel}>
       <div
         ref={containerRef}
         className="staff-canvas"

@@ -18,6 +18,7 @@ import { checkAnswer } from "./domain/quiz";
 import { createPracticeState, practiceReducer } from "./domain/practice";
 import { loadStoredData, saveStoredData } from "./lib/storage";
 import { playNote } from "./lib/audio";
+import { checkScaleAnswer, scaleAnswerLabel } from "./domain/scales";
 
 import {
   loadUiPreferences,
@@ -48,17 +49,25 @@ export default function App() {
     const saved = loadStoredData();
 
     return createPracticeState(
-      saved.settings,
-      saved.total,
-      generatePracticeQuestion(saved.settings),
+      saved.mode,
+      saved.profiles,
+      saved.legacyTotal,
+      generatePracticeQuestion(saved.profiles[saved.mode].settings),
     );
   });
+
+  const settings = state.profiles[state.mode].settings;
+  const total = state.profiles[state.mode].total;
 
   const [ui, setUi] = useState(loadUiPreferences);
   const [answer, setAnswer] = useState("");
 
   const [inputError, setInputError] = useState<
-    "invalidLetter" | "invalidOctave" | "invalidInterval" | null
+    | "invalidLetter"
+    | "invalidOctave"
+    | "invalidInterval"
+    | "invalidScale"
+    | null
   >(null);
 
   const [audioError, setAudioError] = useState(false);
@@ -67,20 +76,23 @@ export default function App() {
   const t: Translate = (key) => translations[ui.language][key];
 
   const isAnswered = state.phase === "answered";
-  const isIntervalMode = state.question.kind === "interval";
 
   const correctAnswer =
-    state.question.kind === "interval"
-      ? (identifyInterval(state.question.value) ?? "")
-      : noteLabel(
-          state.question.value,
-          state.settings.answerMode === "letter-octave",
-        );
+    state.question.kind === "scale"
+      ? scaleAnswerLabel(state.question.value)
+      : state.question.kind === "interval"
+        ? (identifyInterval(state.question.value) ?? "")
+        : noteLabel(
+            state.question.value,
+            settings.answerMode === "letter-octave",
+          );
 
   const currentClef =
-    state.question.kind === "interval"
-      ? state.question.value.first.clef
-      : state.question.value.clef;
+    state.question.kind === "scale"
+      ? state.question.value.clef
+      : state.question.kind === "interval"
+        ? state.question.value.first.clef
+        : state.question.value.clef;
 
   const clefName = t(CLEF_LABELS[currentClef]);
 
@@ -97,8 +109,12 @@ export default function App() {
 
   // Persist quiz settings and all-time statistics.
   useEffect(() => {
-    saveStoredData(state.settings, state.total);
-  }, [state.settings, state.total]);
+    saveStoredData({
+      mode: state.mode,
+      profiles: state.profiles,
+      legacyTotal: state.legacyTotal,
+    });
+  }, [state.mode, state.profiles, state.legacyTotal]);
 
   // Persist UI settings and update document language.
   useEffect(() => {
@@ -180,7 +196,7 @@ export default function App() {
   }
 
   function nextQuestion() {
-    const question = generatePracticeQuestion(state.settings, state.question);
+    const question = generatePracticeQuestion(settings, state.question);
 
     clearInput();
 
@@ -199,17 +215,21 @@ export default function App() {
     }
 
     const result =
-      state.question.kind === "interval"
-        ? checkIntervalAnswer(answer, state.question.value)
-        : checkAnswer(answer, state.question.value, state.settings.answerMode);
+      state.question.kind === "scale"
+        ? checkScaleAnswer(answer, state.question.value, settings)
+        : state.question.kind === "interval"
+          ? checkIntervalAnswer(answer, state.question.value)
+          : checkAnswer(answer, state.question.value, settings.answerMode);
 
     if (result === "invalid") {
       setInputError(
-        state.question.kind === "interval"
-          ? "invalidInterval"
-          : state.settings.answerMode === "letter"
-            ? "invalidLetter"
-            : "invalidOctave",
+        state.question.kind === "scale"
+          ? "invalidScale"
+          : state.question.kind === "interval"
+            ? "invalidInterval"
+            : settings.answerMode === "letter"
+              ? "invalidLetter"
+              : "invalidOctave",
       );
 
       return;
@@ -223,13 +243,25 @@ export default function App() {
     setInputError(null);
   }
 
-  function handleSettingsChange(settings: Settings) {
+  function handleSettingsChange(nextSettings: Settings) {
     clearInput();
+
+    if (nextSettings.practiceMode !== state.mode) {
+      const mode = nextSettings.practiceMode;
+
+      dispatch({
+        type: "switch-mode",
+        mode,
+        question: generatePracticeQuestion(state.profiles[mode].settings),
+      });
+
+      return;
+    }
 
     dispatch({
       type: "change-settings",
-      settings,
-      question: generatePracticeQuestion(settings, state.question),
+      settings: nextSettings,
+      question: generatePracticeQuestion(nextSettings, state.question),
     });
   }
 
@@ -238,7 +270,7 @@ export default function App() {
 
     dispatch({
       type: "reset-session",
-      question: generatePracticeQuestion(state.settings, state.question),
+      question: generatePracticeQuestion(settings, state.question),
     });
   }
 
@@ -251,7 +283,7 @@ export default function App() {
 
     dispatch({
       type: "reset-all",
-      question: generatePracticeQuestion(state.settings, state.question),
+      question: generatePracticeQuestion(settings, state.question),
     });
   }
 
@@ -271,15 +303,17 @@ export default function App() {
           <label className="header-control mode-control">
             <span>{t("practiceMode")}</span>
             <select
-              value={state.settings.practiceMode}
+              value={settings.practiceMode}
               onChange={(event) =>
                 handleSettingsChange({
-                  ...state.settings,
+                  ...settings,
                   practiceMode: event.target.value as Settings["practiceMode"],
                 })
               }>
               <option value="notes">{t("modeNotesShort")}</option>
               <option value="intervals">{t("modeIntervalsShort")}</option>
+              <option value="scales">{t("modeScalesShort")}</option>
+              <option value="modes">{t("modeModesShort")}</option>
             </select>
           </label>
 
@@ -325,11 +359,27 @@ export default function App() {
               <div>
                 <span className="eyebrow">
                   {t(
-                    isIntervalMode ? "intervalPracticeLabel" : "practiceLabel",
+                    state.mode === "modes"
+                      ? "modePracticeLabel"
+                      : state.mode === "scales"
+                        ? "scalePracticeLabel"
+                        : state.mode === "intervals"
+                          ? "intervalPracticeLabel"
+                          : "practiceLabel",
                   )}
                 </span>
 
-                <h2>{t(isIntervalMode ? "intervalQuestion" : "question")}</h2>
+                <h2>
+                  {t(
+                    state.mode === "modes"
+                      ? "modeQuestion"
+                      : state.mode === "scales"
+                        ? "scaleQuestion"
+                        : state.mode === "intervals"
+                          ? "intervalQuestion"
+                          : "question",
+                  )}
+                </h2>
               </div>
 
               <span className="clef-tag">{clefName}</span>
@@ -338,17 +388,20 @@ export default function App() {
             <MusicStaff
               question={state.question}
               ariaLabel={
-                `${t("staffDescription")} ` +
-                `${clefName}. ` +
+                `${t("staffDescription")} ${clefName}. ` +
                 t(
-                  isIntervalMode
-                    ? "staffInstructionInterval"
-                    : "staffInstruction",
+                  state.mode === "modes"
+                    ? "staffInstructionMode"
+                    : state.mode === "scales"
+                      ? "staffInstructionScale"
+                      : state.mode === "intervals"
+                        ? "staffInstructionInterval"
+                        : "staffInstruction",
                 )
               }
             />
 
-            {!isIntervalMode && (
+            {state.question.kind === "note" && (
               <div className="audio-controls">
                 <button
                   type="button"
@@ -375,17 +428,21 @@ export default function App() {
                   ref={inputRef}
                   type="text"
                   value={answer}
-                  maxLength={12}
+                  maxLength={40}
                   autoComplete="off"
                   autoCapitalize="off"
                   spellCheck={false}
 
                   placeholder={t(
-                    isIntervalMode
-                      ? "placeholderInterval"
-                      : state.settings.answerMode === "letter"
-                        ? "placeholderLetter"
-                        : "placeholderOctave",
+                    state.mode === "modes"
+                      ? "placeholderMode"
+                      : state.mode === "scales"
+                        ? "placeholderScale"
+                        : state.mode === "intervals"
+                          ? "placeholderInterval"
+                          : settings.answerMode === "letter"
+                            ? "placeholderLetter"
+                            : "placeholderOctave",
                   )}
 
                   aria-invalid={inputError !== null}
@@ -405,7 +462,13 @@ export default function App() {
                 />
 
                 <button className="button primary" type="submit">
-                  {t(isAnswered ? "next" : "check")}
+                  {t(
+                    isAnswered
+                      ? state.mode === "notes"
+                        ? "next"
+                        : "nextQuestion"
+                      : "check",
+                  )}
                 </button>
               </div>
 
@@ -444,22 +507,45 @@ export default function App() {
                   </>
                 )
               ) : (
-                <span>{t(isIntervalMode ? "waitingInterval" : "waiting")}</span>
+                <span>
+                  {t(
+                    state.mode === "modes"
+                      ? "waitingMode"
+                      : state.mode === "scales"
+                        ? "waitingScale"
+                        : state.mode === "intervals"
+                          ? "waitingInterval"
+                          : "waiting",
+                  )}
+                </span>
               )}
             </div>
 
             <p className="keyboard-hint">{t("keyboardHint")}</p>
 
             <p className="notation-hint">
-              {t(isIntervalMode ? "intervalHint" : "notationHint")}
+              {t(
+                state.mode === "modes"
+                  ? "modeHint"
+                  : state.mode === "scales"
+                    ? "scaleHint"
+                    : state.mode === "intervals"
+                      ? "intervalHint"
+                      : "notationHint",
+              )}
             </p>
           </section>
 
           <div className="sidebar">
-            <Scoreboard session={state.session} total={state.total} t={t} />
+            <Scoreboard
+              session={state.session}
+              total={total}
+              legacyTotal={state.legacyTotal}
+              t={t}
+            />
 
             <SettingsPanel
-              settings={state.settings}
+              settings={settings}
               onChange={handleSettingsChange}
               t={t}
             />

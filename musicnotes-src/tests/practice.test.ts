@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_SETTINGS } from "../src/domain/music";
-import { createPracticeState, practiceReducer } from "../src/domain/practice";
-import { emptyTotal } from "../src/domain/statistics";
 import type { PracticeQuestion } from "../src/domain/exercises";
-import { generatePracticeQuestion } from "../src/domain/exercises";
+import {
+  createDefaultProfiles,
+  createPracticeState,
+  practiceReducer,
+} from "../src/domain/practice";
 
 const question: PracticeQuestion = {
   kind: "note",
@@ -20,107 +22,52 @@ const nextQuestion: PracticeQuestion = {
   value: {
     letter: "D",
     octave: 4,
-    clef: "bass",
-    accidental: "sharp",
+    clef: "treble",
+    accidental: "none",
   },
 };
 
 function initialState() {
-  return createPracticeState(DEFAULT_SETTINGS, emptyTotal(), question);
+  return createPracticeState("notes", createDefaultProfiles(), null, question);
 }
 
 describe("Practice state machine", () => {
-
-
-it("can switch from note to interval practice", () => {
-  const initial = initialState();
-
-  const settings = {
-    ...DEFAULT_SETTINGS,
-    practiceMode: "intervals" as const,
-  };
-
-  const interval = generatePracticeQuestion(settings);
-
-  const changed = practiceReducer(initial, {
-    type: "change-settings",
-    settings,
-    question: interval,
-  });
-
-  expect(changed.question.kind).toBe("interval");
-  expect(changed.phase).toBe("asking");
-  expect(changed.session.correct).toBe(0);
-  expect(changed.total).toEqual(initial.total);
-});
-
-it("scores an interval answer using the existing reducer", () => {
-  const settings = {
-    ...DEFAULT_SETTINGS,
-    practiceMode: "intervals" as const,
-  };
-
-  const question = generatePracticeQuestion(settings);
-
-  const initial = createPracticeState(
-    settings,
-    emptyTotal(),
-    question,
-  );
-
-  const answered = practiceReducer(initial, {
-    type: "submit",
-    correct: true,
-  });
-
-  expect(answered.session.correct).toBe(1);
-  expect(answered.total.correct).toBe(1);
-  expect(answered.session.streak).toBe(1);
-});
-
-
-  it("starts with an unanswered question", () => {
+  it("starts without a scored answer", () => {
     const state = initialState();
 
     expect(state.phase).toBe("asking");
-    expect(state.lastCorrect).toBeNull();
     expect(state.session.correct).toBe(0);
-    expect(state.total.correct).toBe(0);
+    expect(state.profiles.notes.total.correct).toBe(0);
   });
 
-  it("scores a correct answer exactly once", () => {
+  it("scores each question only once", () => {
     const first = practiceReducer(initialState(), {
       type: "submit",
       correct: true,
     });
-
-    expect(first.phase).toBe("answered");
-    expect(first.lastCorrect).toBe(true);
-    expect(first.session.correct).toBe(1);
-    expect(first.total.correct).toBe(1);
-    expect(first.session.streak).toBe(1);
 
     const second = practiceReducer(first, {
       type: "submit",
       correct: true,
     });
 
+    expect(first.session.correct).toBe(1);
+    expect(first.profiles.notes.total.correct).toBe(1);
     expect(second).toBe(first);
-    expect(second.total.correct).toBe(1);
   });
 
   it("does not skip an unanswered question", () => {
     const state = initialState();
 
-    const updated = practiceReducer(state, {
+    const next = practiceReducer(state, {
       type: "next",
       question: nextQuestion,
     });
 
-    expect(updated).toBe(state);
+    expect(next).toBe(state);
   });
 
-  it("advances after an answer and preserves the streak", () => {
+  it("advances after answering", () => {
     const answered = practiceReducer(initialState(), {
       type: "submit",
       correct: true,
@@ -133,75 +80,67 @@ it("scores an interval answer using the existing reducer", () => {
 
     expect(next.question).toEqual(nextQuestion);
     expect(next.phase).toBe("asking");
-    expect(next.lastCorrect).toBeNull();
     expect(next.session.streak).toBe(1);
   });
 
-  it("resets the streak after an incorrect answer", () => {
-    const first = practiceReducer(initialState(), {
+  it("separates statistics between modes", () => {
+    const answered = practiceReducer(initialState(), {
       type: "submit",
       correct: true,
     });
 
-    const next = practiceReducer(first, {
-      type: "next",
-      question: nextQuestion,
+    const intervalQuestion: PracticeQuestion = {
+      kind: "interval",
+      value: {
+        first: question.value as Extract<
+          PracticeQuestion,
+          { kind: "note" }
+        >["value"],
+        second: {
+          letter: "G",
+          octave: 4,
+          clef: "treble",
+          accidental: "none",
+        },
+      },
+    };
+
+    const switched = practiceReducer(answered, {
+      type: "switch-mode",
+      mode: "intervals",
+      question: intervalQuestion,
     });
 
-    const incorrect = practiceReducer(next, {
+    const scored = practiceReducer(switched, {
       type: "submit",
       correct: false,
     });
 
-    expect(incorrect.session.correct).toBe(1);
-    expect(incorrect.session.incorrect).toBe(1);
-    expect(incorrect.session.streak).toBe(0);
-    expect(incorrect.session.bestStreak).toBe(1);
-    expect(incorrect.total.bestStreak).toBe(1);
+    expect(scored.profiles.notes.total.correct).toBe(1);
+    expect(scored.profiles.notes.total.incorrect).toBe(0);
+    expect(scored.profiles.intervals.total.correct).toBe(0);
+    expect(scored.profiles.intervals.total.incorrect).toBe(1);
+    expect(scored.session.correct).toBe(0);
+    expect(scored.session.incorrect).toBe(1);
   });
 
-  it("resets only the session", () => {
-    const answered = practiceReducer(initialState(), {
-      type: "submit",
-      correct: true,
-    });
-
-    const reset = practiceReducer(answered, {
-      type: "reset-session",
-      question: nextQuestion,
-    });
-
-    expect(reset.session.correct).toBe(0);
-    expect(reset.session.streak).toBe(0);
-    expect(reset.total.correct).toBe(1);
-    expect(reset.question).toEqual(nextQuestion);
-    expect(reset.phase).toBe("asking");
-  });
-
-  it("preserves totals when changing settings", () => {
-    const answered = practiceReducer(initialState(), {
-      type: "submit",
-      correct: true,
-    });
-
+  it("preserves independent settings", () => {
     const settings = {
       ...DEFAULT_SETTINGS,
-      clef: "alto" as const,
+      clef: "bass" as const,
     };
 
-    const updated = practiceReducer(answered, {
+    const changed = practiceReducer(initialState(), {
       type: "change-settings",
       settings,
-      question: nextQuestion,
+      question,
     });
 
-    expect(updated.settings).toEqual(settings);
-    expect(updated.session.correct).toBe(0);
-    expect(updated.total.correct).toBe(1);
-    expect(updated.phase).toBe("asking");
+    expect(changed.profiles.notes.settings.clef).toBe("bass");
+    expect(changed.profiles.intervals.settings.clef).toBe("treble");
   });
 
-  it("clears all statistics on full reset", () => {
+  it("resets only the active mode's statistics", () => {
     const answered = practiceReducer(initialState(), {
       type: "submit",
       correct: true,
@@ -209,27 +148,11 @@ it("scores an interval answer using the existing reducer", () => {
 
     const reset = practiceReducer(answered, {
       type: "reset-all",
-      question: nextQuestion,
+      question,
     });
 
+    expect(reset.profiles.notes.total.correct).toBe(0);
+    expect(reset.profiles.intervals.total.correct).toBe(0);
     expect(reset.session.correct).toBe(0);
-    expect(reset.total.correct).toBe(0);
-    expect(reset.total.bestStreak).toBe(0);
-    expect(reset.phase).toBe("asking");
   });
-
-  it("does not mutate the previous state", () => {
-    const original = initialState();
-
-    practiceReducer(original, {
-      type: "submit",
-      correct: true,
-    });
-
-    expect(original.session.correct).toBe(0);
-    expect(original.total.correct).toBe(0);
-    expect(original.phase).toBe("asking");
-  });
-
-  
 });

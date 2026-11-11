@@ -1,4 +1,9 @@
-import type { Settings } from "./music";
+import {
+  DEFAULT_SETTINGS,
+  PRACTICE_MODES,
+  type PracticeMode,
+  type Settings,
+} from "./music";
 import type { PracticeQuestion } from "./exercises";
 
 import {
@@ -9,14 +14,32 @@ import {
   type TotalStats,
 } from "./statistics";
 
-export type Phase = "asking" | "answered";
+export interface ModeProfile {
+  settings: Settings;
+  total: TotalStats;
+}
+
+export type ModeProfiles = Record<PracticeMode, ModeProfile>;
+
+export function createDefaultProfiles(): ModeProfiles {
+  return Object.fromEntries(
+    PRACTICE_MODES.map((mode) => [
+      mode,
+      {
+        settings: { ...DEFAULT_SETTINGS, practiceMode: mode },
+        total: emptyTotal(),
+      },
+    ]),
+  ) as ModeProfiles;
+}
 
 export interface PracticeState {
-  settings: Settings;
+  mode: PracticeMode;
+  profiles: ModeProfiles;
+  legacyTotal: TotalStats | null;
   question: PracticeQuestion;
   session: SessionStats;
-  total: TotalStats;
-  phase: Phase;
+  phase: "asking" | "answered";
   lastCorrect: boolean | null;
 }
 
@@ -28,47 +51,77 @@ export type PracticeAction =
       settings: Settings;
       question: PracticeQuestion;
     }
+  | {
+      type: "switch-mode";
+      mode: PracticeMode;
+      question: PracticeQuestion;
+    }
   | { type: "reset-session"; question: PracticeQuestion }
   | { type: "reset-all"; question: PracticeQuestion };
 
-// Pure initializer: no browser APIs or randomness.
 export function createPracticeState(
-  settings: Settings,
-  total: TotalStats,
+  mode: PracticeMode,
+  profiles: ModeProfiles,
+  legacyTotal: TotalStats | null,
   question: PracticeQuestion,
 ): PracticeState {
   return {
-    settings,
+    mode,
+    profiles,
+    legacyTotal,
     question,
     session: emptySession(),
-    total,
     phase: "asking",
     lastCorrect: null,
   };
 }
 
-// Pure state transitions.
+function restart(
+  state: PracticeState,
+  question: PracticeQuestion,
+): PracticeState {
+  return {
+    ...state,
+    question,
+    session: emptySession(),
+    phase: "asking",
+    lastCorrect: null,
+  };
+}
+
 export function practiceReducer(
   state: PracticeState,
   action: PracticeAction,
 ): PracticeState {
   switch (action.type) {
     case "submit": {
-      // An answered question must never score twice.
+      // One question may only be scored once.
       if (state.phase !== "asking") return state;
 
-      const updated = recordResult(state.session, state.total, action.correct);
+      const current = state.profiles[state.mode];
+
+      const updated = recordResult(
+        state.session,
+        current.total,
+        action.correct,
+      );
 
       return {
         ...state,
-        ...updated,
+        session: updated.session,
+        profiles: {
+          ...state.profiles,
+          [state.mode]: {
+            ...current,
+            total: updated.total,
+          },
+        },
         phase: "answered",
         lastCorrect: action.correct,
       };
     }
 
     case "next":
-      // Only advance after submitting an answer.
       if (state.phase !== "answered") return state;
 
       return {
@@ -79,10 +132,43 @@ export function practiceReducer(
       };
 
     case "change-settings":
-      return createPracticeState(action.settings, state.total, action.question);
+      if (action.settings.practiceMode !== state.mode) {
+        return state;
+      }
+
+      return restart(
+        {
+          ...state,
+          profiles: {
+            ...state.profiles,
+            [state.mode]: {
+              ...state.profiles[state.mode],
+              settings: action.settings,
+            },
+          },
+        },
+        action.question,
+      );
+
+    case "switch-mode":
+      return restart({ ...state, mode: action.mode }, action.question);
+
     case "reset-session":
-      return createPracticeState(state.settings, state.total, action.question);
+      return restart(state, action.question);
+
     case "reset-all":
-      return createPracticeState(state.settings, emptyTotal(), action.question);
+      return restart(
+        {
+          ...state,
+          profiles: {
+            ...state.profiles,
+            [state.mode]: {
+              ...state.profiles[state.mode],
+              total: emptyTotal(),
+            },
+          },
+        },
+        action.question,
+      );
   }
 }

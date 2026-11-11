@@ -2,10 +2,12 @@
 
 import { generateQuestion, type Question, type Settings } from "./music";
 import { generateIntervalQuestion, type IntervalQuestion } from "./intervals";
+import { generateScaleQuestion, type ScaleQuestion } from "./scales";
 
 export type PracticeQuestion =
   | { kind: "note"; value: Question }
-  | { kind: "interval"; value: IntervalQuestion };
+  | { kind: "interval"; value: IntervalQuestion }
+  | { kind: "scale"; value: ScaleQuestion };
 
 export function generatePracticeQuestion(
   settings: Settings,
@@ -21,11 +23,21 @@ export function generatePracticeQuestion(
     };
   }
 
+  if (settings.practiceMode === "intervals") {
+    return {
+      kind: "interval",
+      value: generateIntervalQuestion(
+        settings,
+        previous?.kind === "interval" ? previous.value : undefined,
+      ),
+    };
+  }
+
   return {
-    kind: "interval",
-    value: generateIntervalQuestion(
+    kind: "scale",
+    value: generateScaleQuestion(
       settings,
-      previous?.kind === "interval" ? previous.value : undefined,
+      previous?.kind === "scale" ? previous.value : undefined,
     ),
   };
 }

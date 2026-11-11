@@ -10,9 +10,10 @@ interface Props {
   session: SessionStats;
   total: TotalStats;
   t: Translate;
+  legacyTotal?: TotalStats | null;
 }
 
-export default function Scoreboard({ session, total, t }: Props) {
+export default function Scoreboard({ session, total, t, legacyTotal }: Props) {
   return (
     <section className="panel">
       <div className="section-heading">
@@ -83,6 +84,14 @@ export default function Scoreboard({ session, total, t }: Props) {
           </div>
         </div>
       </div>
+
+      {legacyTotal && legacyTotal.correct + legacyTotal.incorrect > 0 && (
+        <p className="settings-help">
+          {t("legacyStats")}: {legacyTotal.correct} {t("correct").toLowerCase()}
+          , {legacyTotal.incorrect} {t("incorrect").toLowerCase()}.{" "}
+          {t("legacyStatsHelp")}
+        </p>
+      )}
     </section>
   );
 }
