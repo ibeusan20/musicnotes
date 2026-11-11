@@ -9,6 +9,7 @@ interface Props {
 
 export default function SettingsPanel({ settings, onChange, t }: Props) {
   const isIntervalMode = settings.practiceMode === "intervals";
+  const isScaleMode = settings.practiceMode === "scales";
 
   return (
     <section className="panel">
@@ -30,6 +31,7 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
             }>
             <option value="notes">{t("modeNotes")}</option>
             <option value="intervals">{t("modeIntervals")}</option>
+            <option value="scales">{t("modeScales")}</option>
           </select>
         </label>
 
@@ -53,22 +55,24 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
           </select>
         </label>
 
-        <label className="field">
-          <span>{t("difficulty")}</span>
+        {!isScaleMode && (
+          <label className="field">
+            <span>{t("difficulty")}</span>
 
-          <select
-            value={settings.difficulty}
-            onChange={(event) =>
-              onChange({
-                ...settings,
-                difficulty: event.target.value as Settings["difficulty"],
-              })
-            }>
-            <option value="basic">{t("difficultyBasic")}</option>
-            <option value="extended">{t("difficultyExtended")}</option>
-            <option value="advanced">{t("difficultyAdvanced")}</option>
-          </select>
-        </label>
+            <select
+              value={settings.difficulty}
+              onChange={(event) =>
+                onChange({
+                  ...settings,
+                  difficulty: event.target.value as Settings["difficulty"],
+                })
+              }>
+              <option value="basic">{t("difficultyBasic")}</option>
+              <option value="extended">{t("difficultyExtended")}</option>
+              <option value="advanced">{t("difficultyAdvanced")}</option>
+            </select>
+          </label>
+        )}
 
         {isIntervalMode ? (
           <label className="field">
@@ -85,6 +89,21 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
               }>
               <option value="common">{t("intervalCommon")}</option>
               <option value="all">{t("intervalAll")}</option>
+            </select>
+          </label>
+        ) : isScaleMode ? (
+          <label className="field">
+            <span>{t("scaleLevel")}</span>
+            <select
+              value={settings.scaleLevel}
+              onChange={(event) =>
+                onChange({
+                  ...settings,
+                  scaleLevel: event.target.value as Settings["scaleLevel"],
+                })
+              }>
+              <option value="basic">{t("scaleBasic")}</option>
+              <option value="all">{t("scaleAll")}</option>
             </select>
           </label>
         ) : (

@@ -53,8 +53,14 @@ function parseSettings(value: unknown, mode: PracticeMode): Settings {
 
   if (!isRecord(value)) return fallback;
 
-  const { clef, difficulty, answerMode, accidentalLevel, intervalLevel } =
-    value;
+  const {
+    clef,
+    difficulty,
+    answerMode,
+    accidentalLevel,
+    intervalLevel,
+    scaleLevel,
+  } = value;
 
   return {
     practiceMode: mode,
@@ -92,6 +98,11 @@ function parseSettings(value: unknown, mode: PracticeMode): Settings {
       intervalLevel === "common" || intervalLevel === "all"
         ? intervalLevel
         : fallback.intervalLevel,
+
+    scaleLevel:
+      scaleLevel === "basic" || scaleLevel === "all"
+        ? scaleLevel
+        : fallback.scaleLevel,
   };
 }
 
