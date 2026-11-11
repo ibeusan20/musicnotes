@@ -1,4 +1,5 @@
-import type { Question, Settings } from "./music";
+import type { Settings } from "./music";
+import type { PracticeQuestion } from "./exercises";
 
 import {
   emptySession,
@@ -12,7 +13,7 @@ export type Phase = "asking" | "answered";
 
 export interface PracticeState {
   settings: Settings;
-  question: Question;
+  question: PracticeQuestion;
   session: SessionStats;
   total: TotalStats;
   phase: Phase;
@@ -21,20 +22,20 @@ export interface PracticeState {
 
 export type PracticeAction =
   | { type: "submit"; correct: boolean }
-  | { type: "next"; question: Question }
+  | { type: "next"; question: PracticeQuestion }
   | {
       type: "change-settings";
       settings: Settings;
-      question: Question;
+      question: PracticeQuestion;
     }
-  | { type: "reset-session"; question: Question }
-  | { type: "reset-all"; question: Question };
+  | { type: "reset-session"; question: PracticeQuestion }
+  | { type: "reset-all"; question: PracticeQuestion };
 
 // Pure initializer: no browser APIs or randomness.
 export function createPracticeState(
   settings: Settings,
   total: TotalStats,
-  question: Question,
+  question: PracticeQuestion,
 ): PracticeState {
   return {
     settings,

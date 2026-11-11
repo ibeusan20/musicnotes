@@ -7,10 +7,11 @@ import {
   StaveNote,
   Voice,
 } from "vexflow";
-import { type AccidentalType, type Question } from "../domain/music";
+import type { AccidentalType } from "../domain/music";
+import type { PracticeQuestion } from "../domain/exercises";
 
 interface Props {
-  question: Question;
+  question: PracticeQuestion;
   ariaLabel: string;
 }
 
@@ -24,6 +25,11 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
     const container = containerRef.current;
 
     if (!container) return;
+
+    const notes =
+      question.kind === "note"
+        ? [question.value]
+        : [question.value.first, question.value.second];
 
     function draw() {
       if (!container) return;
@@ -45,23 +51,21 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
       const logicalWidth = width / STAFF_SCALE;
 
       // SHorter stave for a single note.
-      const staveWidth = Math.min(logicalWidth - 40, 230);
+
+      const staveWidth = Math.min(
+        logicalWidth - 12,
+        notes.length === 1 ? 230 : 320,
+      );
+
       // Horizontal centering.
       const staveX = (logicalWidth - staveWidth) / 2;
       // Vertical position.
       const stave = new Stave(staveX, 8, staveWidth);
 
-      stave.addClef(question.clef);
+      stave.addClef(notes[0].clef);
       stave.setContext(context).draw();
 
       // VexFlow uses B, but we display H to the user (croatian notation).
-      const key = `${question.letter.toLowerCase()}/${question.octave}`;
-      // Cijela nota (bez vrata) za čist prikaz.
-      const note = new StaveNote({
-        keys: [key],
-        duration: "w",
-        clef: question.clef,
-      });
 
       const symbols: Record<Exclude<AccidentalType, "none">, string> = {
         natural: "n",
@@ -71,17 +75,31 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
         "double-flat": "bb",
       };
 
-      if (question.accidental !== "none") {
-        note.addModifier(new Accidental(symbols[question.accidental]), 0);
-      }
+      const staveNotes = notes.map((source) => {
+        const key = `${source.letter.toLowerCase()}/${source.octave}`;
+
+        const note = new StaveNote({
+          keys: [key],
+          duration: "w",
+          clef: source.clef,
+        });
+
+        if (source.accidental !== "none") {
+          note.addModifier(new Accidental(symbols[source.accidental]), 0);
+        }
+
+        return note;
+      });
 
       const voice = new Voice({
-        numBeats: 4,
+        numBeats: staveNotes.length * 4,
         beatValue: 4,
       });
 
-      voice.addTickables([note]);
+      voice.addTickables(staveNotes);
+
       new Formatter().joinVoices([voice]).formatToStave([voice], stave);
+
       voice.draw(context, stave);
     }
 

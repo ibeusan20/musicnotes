@@ -83,7 +83,23 @@ const hr = {
 
   footer: "MusicNotes - vježbanje glazbene notacije",
   storageNotice: "Statistika se sprema lokalno.",
-} as const;
+
+  practiceMode: "Način vježbanja",
+  modeNotes: "Prepoznavanje nota",
+  modeIntervals: "Prepoznavanje intervala",
+
+  intervalPracticeLabel: "PREPOZNAJ INTERVAL",
+  intervalQuestion: "Koji je ovo interval?",
+  intervalLevel: "Skup intervala",
+  intervalCommon: "Osnovni (15 intervala)",
+  intervalAll: "Svi (27 intervala)",
+  placeholderInterval: "Npr. č5, m3 ili pov4",
+  invalidInterval: "Upiši valjanu oznaku, npr. č5, sm5 ili pov4.",
+  waitingInterval: "Upiši oznaku intervala i pritisni Enter.",
+  intervalHint:
+    "Note čitaj slijeva nadesno. č = čista, m = mala, v = velika, sm = smanjena, pov = povećana.",
+  staffInstructionInterval: "Prepoznaj interval između dviju nota.",
+  } as const;
 
 const en: Record<keyof typeof hr, string> = {
   documentTitle: "MusicNotes | Note trainer",
@@ -169,7 +185,23 @@ const en: Record<keyof typeof hr, string> = {
 
   footer: "MusicNotes — music notation practice",
   storageNotice: "Statistics are stored in this browser.",
-};
+
+  practiceMode: "Practice mode",
+  modeNotes: "Note recognition",
+  modeIntervals: "Interval recognition",
+
+  intervalPracticeLabel: "IDENTIFY THE INTERVAL",
+  intervalQuestion: "Which interval is this?",
+  intervalLevel: "Interval set",
+  intervalCommon: "Common (15 intervals)",
+  intervalAll: "All (27 intervals)",
+  placeholderInterval: "E.g. č5, m3 or pov4",
+  invalidInterval: "Enter a valid interval code, e.g. č5, sm5 or pov4.",
+  waitingInterval: "Enter the interval code and press Enter.",
+  intervalHint:
+    "Read notes from left to right. č = perfect, m = minor, v = major, sm = diminished, pov = augmented.",
+  staffInstructionInterval: "Identify the interval between the two notes.",
+  };
 
 export type Language = "hr" | "en";
 export type TranslationKey = keyof typeof hr;

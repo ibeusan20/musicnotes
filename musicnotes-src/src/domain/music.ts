@@ -4,6 +4,8 @@ export type Clef = "treble" | "bass" | "alto" | "tenor";
 export type ClefSelection = Clef | "random" | "treble-bass";
 export type Difficulty = "basic" | "extended" | "advanced";
 export type AnswerMode = "letter" | "letter-octave";
+export type PracticeMode = "notes" | "intervals";
+export type IntervalLevel = "common" | "all";
 export type AccidentalLevel = "off" | "single" | "double";
 
 export const ACCIDENTALS = [
@@ -21,6 +23,8 @@ export interface Settings {
   clef: ClefSelection;
   difficulty: Difficulty;
   answerMode: AnswerMode;
+  practiceMode: PracticeMode;
+  intervalLevel: IntervalLevel;
   accidentalLevel: AccidentalLevel;
 }
 
@@ -35,6 +39,8 @@ export const DEFAULT_SETTINGS: Settings = {
   clef: "treble",
   difficulty: "basic",
   answerMode: "letter",
+  practiceMode: "notes",
+  intervalLevel: "common",
   accidentalLevel: "off",
 };
 
