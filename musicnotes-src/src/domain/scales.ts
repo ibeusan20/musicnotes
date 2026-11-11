@@ -39,7 +39,18 @@ export const SCALE_TYPES = [
   "minor-melodic",
 ] as const;
 
-export type ScaleType = (typeof SCALE_TYPES)[number];
+export const MODE_TYPES = [
+  "ionian",
+  "dorian",
+  "phrygian",
+  "lydian",
+  "mixolydian",
+  "aeolian",
+  "locrian",
+] as const;
+
+export type ScaleType =
+  (typeof SCALE_TYPES)[number] | (typeof MODE_TYPES)[number];
 
 export interface ScaleNote {
   letter: Letter;
@@ -67,6 +78,13 @@ const MODE_OFFSET: Record<ScaleType, number> = {
   "minor-natural": 5,
   "minor-harmonic": 5,
   "minor-melodic": 5,
+  ionian: 0,
+  dorian: 1,
+  phrygian: 2,
+  lydian: 3,
+  mixolydian: 4,
+  aeolian: 5,
+  locrian: 6,
 };
 
 // Bottom line in diatonic indices, C0 = 0.
@@ -103,7 +121,9 @@ function tonicName(key: MajorKey, type: ScaleType): string {
   const name =
     letter === "B" && change === -1 ? "b" : noteName({ letter, accidental });
 
-  return type === "major" ? name[0].toUpperCase() + name.slice(1) : name;
+  return type === "major" || MODE_TYPES.some((mode) => mode === type)
+    ? name[0].toUpperCase() + name.slice(1)
+    : name;
 }
 
 function alteredSign(change: number): AccidentalType {
@@ -163,6 +183,10 @@ export function buildScaleQuestion(
 }
 
 function allowedTypes(settings: Settings): readonly ScaleType[] {
+  if (settings.practiceMode === "modes") {
+    return MODE_TYPES;
+  }
+
   return settings.scaleLevel === "basic"
     ? ["major", "minor-natural"]
     : SCALE_TYPES;
@@ -202,6 +226,13 @@ const NAMES: Record<ScaleType, string> = {
   "minor-natural": "prirodni",
   "minor-harmonic": "harmonijski",
   "minor-melodic": "melodijski",
+  ionian: "jonski",
+  dorian: "dorski",
+  phrygian: "frigijski",
+  lydian: "lidijski",
+  mixolydian: "miksolidijski",
+  aeolian: "eolski",
+  locrian: "lokrijski",
 };
 
 export function scaleAnswerLabel(question: ScaleQuestion): string {
@@ -209,7 +240,11 @@ export function scaleAnswerLabel(question: ScaleQuestion): string {
     return `${question.tonic}-dur`;
   }
 
-  return `${question.tonic}-mol (${NAMES[question.type]})`;
+  if (question.type.startsWith("minor-")) {
+    return `${question.tonic}-mol (${NAMES[question.type]})`;
+  }
+
+  return `${question.tonic} ${NAMES[question.type]}`;
 }
 
 const normalize = (value: string): string =>
@@ -223,20 +258,25 @@ function aliases(
   level: Settings["scaleLevel"],
 ): string[] {
   const tonic = normalize(question.tonic);
+  const tonics = tonic === "b" ? ["b", "hes"] : [tonic];
 
   if (question.type === "major") {
-    return [`${tonic}dur`];
+    return tonics.map((name) => `${name}dur`);
   }
 
-  const kind = NAMES[question.type];
+  if (question.type.startsWith("minor-")) {
+    const kind = NAMES[question.type];
 
-  return [
-    `${tonic}mol${kind}`,
-    `${tonic}${kind}mol`,
-    ...(question.type === "minor-natural" && level === "basic"
-      ? [`${tonic}mol`]
-      : []),
-  ];
+    return [
+      `${tonic}mol${kind}`,
+      `${tonic}${kind}mol`,
+      ...(question.type === "minor-natural" && level === "basic"
+        ? [`${tonic}mol`]
+        : []),
+    ];
+  }
+
+  return [`${tonic}${NAMES[question.type]}`];
 }
 
 export function checkScaleAnswer(

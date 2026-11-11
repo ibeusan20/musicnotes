@@ -313,6 +313,7 @@ export default function App() {
               <option value="notes">{t("modeNotesShort")}</option>
               <option value="intervals">{t("modeIntervalsShort")}</option>
               <option value="scales">{t("modeScalesShort")}</option>
+              <option value="modes">{t("modeModesShort")}</option>
             </select>
           </label>
 
@@ -358,21 +359,25 @@ export default function App() {
               <div>
                 <span className="eyebrow">
                   {t(
-                    state.mode === "scales"
-                      ? "scalePracticeLabel"
-                      : state.mode === "intervals"
-                        ? "intervalPracticeLabel"
-                        : "practiceLabel",
+                    state.mode === "modes"
+                      ? "modePracticeLabel"
+                      : state.mode === "scales"
+                        ? "scalePracticeLabel"
+                        : state.mode === "intervals"
+                          ? "intervalPracticeLabel"
+                          : "practiceLabel",
                   )}
                 </span>
 
                 <h2>
                   {t(
-                    state.mode === "scales"
-                      ? "scaleQuestion"
-                      : state.mode === "intervals"
-                        ? "intervalQuestion"
-                        : "question",
+                    state.mode === "modes"
+                      ? "modeQuestion"
+                      : state.mode === "scales"
+                        ? "scaleQuestion"
+                        : state.mode === "intervals"
+                          ? "intervalQuestion"
+                          : "question",
                   )}
                 </h2>
               </div>
@@ -385,11 +390,13 @@ export default function App() {
               ariaLabel={
                 `${t("staffDescription")} ${clefName}. ` +
                 t(
-                  state.mode === "scales"
-                    ? "staffInstructionScale"
-                    : state.mode === "intervals"
-                      ? "staffInstructionInterval"
-                      : "staffInstruction",
+                  state.mode === "modes"
+                    ? "staffInstructionMode"
+                    : state.mode === "scales"
+                      ? "staffInstructionScale"
+                      : state.mode === "intervals"
+                        ? "staffInstructionInterval"
+                        : "staffInstruction",
                 )
               }
             />
@@ -427,13 +434,15 @@ export default function App() {
                   spellCheck={false}
 
                   placeholder={t(
-                    state.mode === "scales"
-                      ? "placeholderScale"
-                      : state.mode === "intervals"
-                        ? "placeholderInterval"
-                        : settings.answerMode === "letter"
-                          ? "placeholderLetter"
-                          : "placeholderOctave",
+                    state.mode === "modes"
+                      ? "placeholderMode"
+                      : state.mode === "scales"
+                        ? "placeholderScale"
+                        : state.mode === "intervals"
+                          ? "placeholderInterval"
+                          : settings.answerMode === "letter"
+                            ? "placeholderLetter"
+                            : "placeholderOctave",
                   )}
 
                   aria-invalid={inputError !== null}
@@ -500,11 +509,13 @@ export default function App() {
               ) : (
                 <span>
                   {t(
-                    state.mode === "scales"
-                      ? "waitingScale"
-                      : state.mode === "intervals"
-                        ? "waitingInterval"
-                        : "waiting",
+                    state.mode === "modes"
+                      ? "waitingMode"
+                      : state.mode === "scales"
+                        ? "waitingScale"
+                        : state.mode === "intervals"
+                          ? "waitingInterval"
+                          : "waiting",
                   )}
                 </span>
               )}
@@ -514,11 +525,13 @@ export default function App() {
 
             <p className="notation-hint">
               {t(
-                state.mode === "scales"
-                  ? "scaleHint"
-                  : state.mode === "intervals"
-                    ? "intervalHint"
-                    : "notationHint",
+                state.mode === "modes"
+                  ? "modeHint"
+                  : state.mode === "scales"
+                    ? "scaleHint"
+                    : state.mode === "intervals"
+                      ? "intervalHint"
+                      : "notationHint",
               )}
             </p>
           </section>

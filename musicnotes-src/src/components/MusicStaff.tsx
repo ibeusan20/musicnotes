@@ -67,7 +67,7 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
       // SHorter stave for a single note.
       const staveWidth = isScale
         ? logicalWidth - 24
-        : Math.min(logicalWidth - 12, notes.length === 1 ? 230 : 320);
+        : Math.min(logicalWidth - 12, notes.length === 1 ? 120 : 120);
 
       // Horizontal centering.
       const staveX = (logicalWidth - staveWidth) / 2;
@@ -97,7 +97,7 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
 
         const note = new StaveNote({
           keys: [key],
-          duration: isScale ? "q" : "w",
+          duration: "w",
           clef,
         });
 
@@ -109,9 +109,9 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
       });
 
       const voice = new Voice({
-        numBeats: isScale ? staveNotes.length : staveNotes.length * 4,
-        beatValue: 4,
-      });
+  numBeats: staveNotes.length * 4,
+  beatValue: 4,
+});
 
       voice.addTickables(staveNotes);
 

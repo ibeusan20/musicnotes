@@ -121,6 +121,16 @@ const hr = {
   staffInstructionScale:
     "Prepoznaj ljestvicu prema ključu, predznacima i notama.",
   nextQuestion: "Sljedeće pitanje",
+
+  modeModes: "Prepoznavanje modusa",
+  modeModesShort: "Modusi",
+  modePracticeLabel: "PREPOZNAJ MODUS",
+  modeQuestion: "Koji je ovo modus?",
+  placeholderMode: "Npr. D dorski ili G miksolidijski",
+  waitingMode: "Odredi toniku i modus pa pritisni Enter.",
+  modeHint:
+    "Jonski, dorski, frigijski, lidijski, miksolidijski, eolski i lokrijski modus.",
+  staffInstructionMode: "Prepoznaj toniku i modus prikazane ljestvice.",
 } as const;
 
 const en: Record<keyof typeof hr, string> = {
@@ -246,6 +256,16 @@ const en: Record<keyof typeof hr, string> = {
   staffInstructionScale:
     "Identify the scale from the clef, key signature and notes.",
   nextQuestion: "Next question",
+
+  modeModes: "Mode recognition",
+  modeModesShort: "Modes",
+  modePracticeLabel: "IDENTIFY THE MODE",
+  modeQuestion: "Which mode is this?",
+  placeholderMode: "E.g. D dorski or G miksolidijski",
+  waitingMode: "Identify the tonic and mode, then press Enter.",
+  modeHint:
+    "Ionian, Dorian, Phrygian, Lydian, Mixolydian, Aeolian and Locrian.",
+  staffInstructionMode: "Identify the tonic and mode of the written scale.",
 };
 
 export type Language = "hr" | "en";

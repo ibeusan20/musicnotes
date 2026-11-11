@@ -117,7 +117,13 @@ export function loadStoredData(): StoredData {
     const raw = localStorage.getItem(STORAGE_KEY);
 
     if (raw) {
-      const data: unknown = JSON.parse(raw);
+      let data: unknown = null;
+
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        // Attempt migration from v1 below.
+      }
 
       if (isRecord(data) && data.version === 2) {
         const profiles = createDefaultProfiles();

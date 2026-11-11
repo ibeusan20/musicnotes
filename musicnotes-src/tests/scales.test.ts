@@ -9,7 +9,7 @@ import {
   generateScaleQuestion,
   scaleAnswerLabel,
   type ScaleQuestion,
-  type ScaleType,
+  MODE_TYPES,
 } from "../src/domain/scales";
 
 const BASE: Record<Letter, number> = {
@@ -25,7 +25,7 @@ const BASE: Record<Letter, number> = {
 const SHARPS = ["F", "C", "G", "D", "A", "E", "B"];
 const FLATS = ["B", "E", "A", "D", "G", "C", "F"];
 
-const EXPECTED: Record<ScaleType, number[]> = {
+const EXPECTED: Record<(typeof SCALE_TYPES)[number], number[]> = {
   major: [2, 2, 1, 2, 2, 2, 1],
   "minor-natural": [2, 1, 2, 2, 1, 2, 2],
   "minor-harmonic": [2, 1, 2, 2, 1, 3, 1],
@@ -175,5 +175,69 @@ describe("Major and minor scales", () => {
     expect(
       scaleAnswerLabel(buildScaleQuestion("C", "minor-melodic", "treble")),
     ).toBe("a-mol (melodijski)");
+  });
+});
+
+const MODE_STEPS: Record<(typeof MODE_TYPES)[number], number[]> = {
+  ionian: [2, 2, 1, 2, 2, 2, 1],
+  dorian: [2, 1, 2, 2, 2, 1, 2],
+  phrygian: [1, 2, 2, 2, 1, 2, 2],
+  lydian: [2, 2, 2, 1, 2, 2, 1],
+  mixolydian: [2, 2, 1, 2, 2, 1, 2],
+  aeolian: [2, 1, 2, 2, 1, 2, 2],
+  locrian: [1, 2, 2, 1, 2, 2, 2],
+};
+
+describe("Diatonic modes", () => {
+  it("defines seven modes", () => {
+    expect(MODE_TYPES).toHaveLength(7);
+  });
+
+  it("generates correct patterns in every key and clef", () => {
+    for (const key of MAJOR_KEYS) {
+      for (const type of MODE_TYPES) {
+        for (const clef of CLEFS) {
+          const question = buildScaleQuestion(key, type, clef);
+
+          expect(semitoneSteps(question)).toEqual(MODE_STEPS[type]);
+        }
+      }
+    }
+  });
+
+  it("identifies D Dorian from the C major signature", () => {
+    const question = buildScaleQuestion("C", "dorian", "treble");
+
+    expect(question.tonic).toBe("D");
+    expect(question.keySignature).toBe("C");
+    expect(scaleAnswerLabel(question)).toBe("D dorski");
+  });
+
+  it("accepts the Croatian mode name", () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      practiceMode: "modes" as const,
+    };
+
+    const question = buildScaleQuestion("C", "lydian", "treble");
+
+    expect(checkScaleAnswer("F lidijski", question, settings)).toBe("correct");
+
+    expect(checkScaleAnswer("F frigijski", question, settings)).toBe(
+      "incorrect",
+    );
+  });
+
+  it("generates only modal questions in mode practice", () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      practiceMode: "modes" as const,
+    };
+
+    for (let i = 0; i < 100; i++) {
+      const question = generateScaleQuestion(settings);
+
+      expect(MODE_TYPES.some((type) => type === question.type)).toBe(true);
+    }
   });
 });

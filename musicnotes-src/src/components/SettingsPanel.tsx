@@ -10,6 +10,7 @@ interface Props {
 export default function SettingsPanel({ settings, onChange, t }: Props) {
   const isIntervalMode = settings.practiceMode === "intervals";
   const isScaleMode = settings.practiceMode === "scales";
+  const isModeMode = settings.practiceMode === "modes";
 
   return (
     <section className="panel">
@@ -32,6 +33,7 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
             <option value="notes">{t("modeNotes")}</option>
             <option value="intervals">{t("modeIntervals")}</option>
             <option value="scales">{t("modeScales")}</option>
+            <option value="modes">{t("modeModes")}</option>
           </select>
         </label>
 
@@ -55,7 +57,7 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
           </select>
         </label>
 
-        {!isScaleMode && (
+        {!isScaleMode && !isModeMode && (
           <label className="field">
             <span>{t("difficulty")}</span>
 
@@ -106,7 +108,7 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
               <option value="all">{t("scaleAll")}</option>
             </select>
           </label>
-        ) : (
+        ) : isModeMode ? null : (
           <>
             <label className="field">
               <span>{t("answerMode")}</span>

@@ -113,13 +113,13 @@ export function generateIntervalQuestion(
 ): IntervalQuestion {
   // Use natural starting notes in the selected clef and range.
   // Accidentals of the second note are calculated independently.
-  const naturals = createNotePool({
+  const firstNotes = createNotePool({
     ...settings,
-    accidentalLevel: "off",
-  });
+    accidentalLevel: "single",
+  }).filter((note) => note.accidental !== "natural");
 
   const availablePositions = new Set(
-    naturals.map((note) => `${note.clef}:${diatonicIndex(note)}`),
+    firstNotes.map((note) => `${note.clef}:${diatonicIndex(note)}`),
   );
 
   // Group by interval to avoid favouring smaller intervals,
@@ -136,7 +136,7 @@ export function generateIntervalQuestion(
 
     const group: IntervalQuestion[] = [];
 
-    for (const first of naturals) {
+    for (const first of firstNotes) {
       const secondIndex = diatonicIndex(first) + interval.degree - 1;
 
       // Both notes must fit the chosen staff range.
@@ -158,7 +158,16 @@ export function generateIntervalQuestion(
 
       const candidate: IntervalQuestion = {
         first,
-        second: { ...second, accidental },
+
+        second: {
+          ...second,
+          accidental:
+            interval.degree === 1 &&
+            first.accidental !== "none" &&
+            accidental === "none"
+              ? "natural"
+              : accidental,
+        },
       };
 
       if (!previous || !sameInterval(candidate, previous)) {

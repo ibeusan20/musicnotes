@@ -239,4 +239,21 @@ describe("Interval generation", () => {
       expect(identifyInterval(intervalExercise.value)).not.toBeNull();
     }
   });
+
+  it("supports accidentals on the first note", () => {
+    const random = vi
+      .spyOn(Math, "random")
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(0.05);
+
+    try {
+      const question = generateIntervalQuestion(DEFAULT_SETTINGS);
+
+      expect(question.first.accidental).toBe("sharp");
+      expect(question.second.accidental).toBe("sharp");
+      expect(identifyInterval(question)).toBe("č1");
+    } finally {
+      random.mockRestore();
+    }
+  });
 });
