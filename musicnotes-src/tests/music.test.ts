@@ -8,9 +8,11 @@ import {
   type Question,
   type Settings,
   ACCIDENTALS,
+  DEFAULT_SETTINGS,
 } from "../src/domain/music";
 
 const settings: Settings = {
+  ...DEFAULT_SETTINGS,
   clef: "treble",
   difficulty: "basic",
   answerMode: "letter",

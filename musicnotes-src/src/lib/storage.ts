@@ -28,6 +28,8 @@ function parseSettings(value: unknown): Settings {
   const difficulty = value.difficulty;
   const answerMode = value.answerMode;
   const accidentalLevel = value.accidentalLevel;
+  const practiceMode = value.practiceMode;
+  const intervalLevel = value.intervalLevel;
 
   return {
     clef:
@@ -58,6 +60,16 @@ function parseSettings(value: unknown): Settings {
       accidentalLevel === "double"
         ? accidentalLevel
         : DEFAULT_SETTINGS.accidentalLevel,
+
+    practiceMode:
+      practiceMode === "notes" || practiceMode === "intervals"
+        ? practiceMode
+        : DEFAULT_SETTINGS.practiceMode,
+
+    intervalLevel:
+      intervalLevel === "common" || intervalLevel === "all"
+        ? intervalLevel
+        : DEFAULT_SETTINGS.intervalLevel,
   };
 }
 

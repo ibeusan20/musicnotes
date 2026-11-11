@@ -125,4 +125,39 @@ describe("Lokalno spremanje", () => {
       }),
     ).not.toThrow();
   });
+
+  it("preserves old statistics and defaults to note mode", () => {
+    const storage = createStorage();
+
+    vi.stubGlobal("localStorage", storage);
+
+    storage.setItem(
+      "musicnotes.v1",
+      JSON.stringify({
+        version: 1,
+        settings: {
+          clef: "bass",
+          difficulty: "extended",
+          answerMode: "letter",
+          accidentalLevel: "single",
+        },
+        total: {
+          correct: 42,
+          incorrect: 8,
+          bestStreak: 12,
+        },
+      }),
+    );
+
+    const loaded = loadStoredData();
+
+    expect(loaded.settings.practiceMode).toBe("notes");
+    expect(loaded.settings.intervalLevel).toBe("common");
+
+    expect(loaded.total).toEqual({
+      correct: 42,
+      incorrect: 8,
+      bestStreak: 12,
+    });
+  });
 });

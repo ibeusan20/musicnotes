@@ -8,6 +8,8 @@ interface Props {
 }
 
 export default function SettingsPanel({ settings, onChange, t }: Props) {
+  const isIntervalMode = settings.practiceMode === "intervals";
+
   return (
     <section className="panel">
       <div className="section-heading">
@@ -15,6 +17,22 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
       </div>
 
       <div className="settings-grid">
+        <label className="field">
+          <span>{t("practiceMode")}</span>
+
+          <select
+            value={settings.practiceMode}
+            onChange={(event) =>
+              onChange({
+                ...settings,
+                practiceMode: event.target.value as Settings["practiceMode"],
+              })
+            }>
+            <option value="notes">{t("modeNotes")}</option>
+            <option value="intervals">{t("modeIntervals")}</option>
+          </select>
+        </label>
+
         <label className="field">
           <span>{t("clef")}</span>
 
@@ -52,39 +70,60 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
           </select>
         </label>
 
-        <label className="field">
-          <span>{t("answerMode")}</span>
+        {isIntervalMode ? (
+          <label className="field">
+            <span>{t("intervalLevel")}</span>
 
-          <select
-            value={settings.answerMode}
-            onChange={(event) =>
-              onChange({
-                ...settings,
-                answerMode: event.target.value as Settings["answerMode"],
-              })
-            }>
-            <option value="letter">{t("answerLetter")}</option>
-            <option value="letter-octave">{t("answerLetterOctave")}</option>
-          </select>
-        </label>
+            <select
+              value={settings.intervalLevel}
+              onChange={(event) =>
+                onChange({
+                  ...settings,
+                  intervalLevel: event.target
+                    .value as Settings["intervalLevel"],
+                })
+              }>
+              <option value="common">{t("intervalCommon")}</option>
+              <option value="all">{t("intervalAll")}</option>
+            </select>
+          </label>
+        ) : (
+          <>
+            <label className="field">
+              <span>{t("answerMode")}</span>
 
-        <label className="field">
-          <span>{t("accidentals")}</span>
+              <select
+                value={settings.answerMode}
+                onChange={(event) =>
+                  onChange({
+                    ...settings,
+                    answerMode: event.target.value as Settings["answerMode"],
+                  })
+                }>
+                <option value="letter">{t("answerLetter")}</option>
+                <option value="letter-octave">{t("answerLetterOctave")}</option>
+              </select>
+            </label>
 
-          <select
-            value={settings.accidentalLevel}
-            onChange={(event) =>
-              onChange({
-                ...settings,
-                accidentalLevel: event.target
-                  .value as Settings["accidentalLevel"],
-              })
-            }>
-            <option value="off">{t("accidentalOff")}</option>
-            <option value="single">{t("accidentalSingle")}</option>
-            <option value="double">{t("accidentalDouble")}</option>
-          </select>
-        </label>
+            <label className="field">
+              <span>{t("accidentals")}</span>
+
+              <select
+                value={settings.accidentalLevel}
+                onChange={(event) =>
+                  onChange({
+                    ...settings,
+                    accidentalLevel: event.target
+                      .value as Settings["accidentalLevel"],
+                  })
+                }>
+                <option value="off">{t("accidentalOff")}</option>
+                <option value="single">{t("accidentalSingle")}</option>
+                <option value="double">{t("accidentalDouble")}</option>
+              </select>
+            </label>
+          </>
+        )}
       </div>
 
       <p className="settings-help">{t("settingsHelp")}</p>

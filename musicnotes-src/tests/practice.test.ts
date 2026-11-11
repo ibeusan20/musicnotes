@@ -1,20 +1,28 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_SETTINGS, type Question } from "../src/domain/music";
+import { DEFAULT_SETTINGS } from "../src/domain/music";
 import { createPracticeState, practiceReducer } from "../src/domain/practice";
 import { emptyTotal } from "../src/domain/statistics";
+import type { PracticeQuestion } from "../src/domain/exercises";
+import { generatePracticeQuestion } from "../src/domain/exercises";
 
-const question: Question = {
-  letter: "C",
-  octave: 4,
-  clef: "treble",
-  accidental: "none",
+const question: PracticeQuestion = {
+  kind: "note",
+  value: {
+    letter: "C",
+    octave: 4,
+    clef: "treble",
+    accidental: "none",
+  },
 };
 
-const nextQuestion: Question = {
-  letter: "D",
-  octave: 4,
-  clef: "bass",
-  accidental: "sharp",
+const nextQuestion: PracticeQuestion = {
+  kind: "note",
+  value: {
+    letter: "D",
+    octave: 4,
+    clef: "bass",
+    accidental: "sharp",
+  },
 };
 
 function initialState() {
@@ -22,6 +30,55 @@ function initialState() {
 }
 
 describe("Practice state machine", () => {
+
+
+it("can switch from note to interval practice", () => {
+  const initial = initialState();
+
+  const settings = {
+    ...DEFAULT_SETTINGS,
+    practiceMode: "intervals" as const,
+  };
+
+  const interval = generatePracticeQuestion(settings);
+
+  const changed = practiceReducer(initial, {
+    type: "change-settings",
+    settings,
+    question: interval,
+  });
+
+  expect(changed.question.kind).toBe("interval");
+  expect(changed.phase).toBe("asking");
+  expect(changed.session.correct).toBe(0);
+  expect(changed.total).toEqual(initial.total);
+});
+
+it("scores an interval answer using the existing reducer", () => {
+  const settings = {
+    ...DEFAULT_SETTINGS,
+    practiceMode: "intervals" as const,
+  };
+
+  const question = generatePracticeQuestion(settings);
+
+  const initial = createPracticeState(
+    settings,
+    emptyTotal(),
+    question,
+  );
+
+  const answered = practiceReducer(initial, {
+    type: "submit",
+    correct: true,
+  });
+
+  expect(answered.session.correct).toBe(1);
+  expect(answered.total.correct).toBe(1);
+  expect(answered.session.streak).toBe(1);
+});
+
+
   it("starts with an unanswered question", () => {
     const state = initialState();
 
@@ -173,4 +230,6 @@ describe("Practice state machine", () => {
     expect(original.total.correct).toBe(0);
     expect(original.phase).toBe("asking");
   });
+
+  
 });

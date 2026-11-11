@@ -11,18 +11,11 @@ import {
 import MusicStaff from "./components/MusicStaff";
 import Scoreboard from "./components/Scoreboard";
 import SettingsPanel from "./components/SettingsPanel";
-
-import {
-  noteLabel,
-  generateQuestion,
-  type Clef,
-  type Settings,
-} from "./domain/music";
-
+import { noteLabel, type Clef, type Settings } from "./domain/music";
+import { generatePracticeQuestion } from "./domain/exercises";
+import { checkIntervalAnswer, identifyInterval } from "./domain/intervals";
 import { checkAnswer } from "./domain/quiz";
-
 import { createPracticeState, practiceReducer } from "./domain/practice";
-
 import { loadStoredData, saveStoredData } from "./lib/storage";
 import { playNote } from "./lib/audio";
 
@@ -57,7 +50,7 @@ export default function App() {
     return createPracticeState(
       saved.settings,
       saved.total,
-      generateQuestion(saved.settings),
+      generatePracticeQuestion(saved.settings),
     );
   });
 
@@ -65,7 +58,7 @@ export default function App() {
   const [answer, setAnswer] = useState("");
 
   const [inputError, setInputError] = useState<
-    "invalidLetter" | "invalidOctave" | null
+    "invalidLetter" | "invalidOctave" | "invalidInterval" | null
   >(null);
 
   const [audioError, setAudioError] = useState(false);
@@ -74,19 +67,30 @@ export default function App() {
   const t: Translate = (key) => translations[ui.language][key];
 
   const isAnswered = state.phase === "answered";
+  const isIntervalMode = state.question.kind === "interval";
 
-  const correctAnswer = noteLabel(
-    state.question,
-    state.settings.answerMode === "letter-octave",
-  );
+  const correctAnswer =
+    state.question.kind === "interval"
+      ? (identifyInterval(state.question.value) ?? "")
+      : noteLabel(
+          state.question.value,
+          state.settings.answerMode === "letter-octave",
+        );
 
-  const clefName = t(CLEF_LABELS[state.question.clef]);
+  const currentClef =
+    state.question.kind === "interval"
+      ? state.question.value.first.clef
+      : state.question.value.clef;
+
+  const clefName = t(CLEF_LABELS[currentClef]);
 
   // Play the currently displayed note.
   const playCurrentNote = useCallback(() => {
+    if (state.question.kind !== "note") return;
+
     setAudioError(false);
 
-    void playNote(state.question).catch(() => {
+    void playNote(state.question.value).catch(() => {
       setAudioError(true);
     });
   }, [state.question]);
@@ -136,6 +140,7 @@ export default function App() {
 
   // Press P to play the current note.
   useEffect(() => {
+    if (state.question.kind !== "note") return;
     function handleKeyDown(event: KeyboardEvent) {
       if (
         event.key.toLowerCase() !== "p" ||
@@ -166,7 +171,7 @@ export default function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [playCurrentNote]);
+  }, [playCurrentNote, state.question.kind]);
 
   function clearInput() {
     setAnswer("");
@@ -175,7 +180,7 @@ export default function App() {
   }
 
   function nextQuestion() {
-    const question = generateQuestion(state.settings, state.question);
+    const question = generatePracticeQuestion(state.settings, state.question);
 
     clearInput();
 
@@ -193,18 +198,20 @@ export default function App() {
       return;
     }
 
-    const result = checkAnswer(
-      answer,
-      state.question,
-      state.settings.answerMode,
-    );
+    const result =
+      state.question.kind === "interval"
+        ? checkIntervalAnswer(answer, state.question.value)
+        : checkAnswer(answer, state.question.value, state.settings.answerMode);
 
     if (result === "invalid") {
       setInputError(
-        state.settings.answerMode === "letter"
-          ? "invalidLetter"
-          : "invalidOctave",
+        state.question.kind === "interval"
+          ? "invalidInterval"
+          : state.settings.answerMode === "letter"
+            ? "invalidLetter"
+            : "invalidOctave",
       );
+
       return;
     }
 
@@ -222,7 +229,7 @@ export default function App() {
     dispatch({
       type: "change-settings",
       settings,
-      question: generateQuestion(settings, state.question),
+      question: generatePracticeQuestion(settings, state.question),
     });
   }
 
@@ -231,7 +238,7 @@ export default function App() {
 
     dispatch({
       type: "reset-session",
-      question: generateQuestion(state.settings, state.question),
+      question: generatePracticeQuestion(state.settings, state.question),
     });
   }
 
@@ -244,7 +251,7 @@ export default function App() {
 
     dispatch({
       type: "reset-all",
-      question: generateQuestion(state.settings, state.question),
+      question: generatePracticeQuestion(state.settings, state.question),
     });
   }
 
@@ -301,9 +308,13 @@ export default function App() {
           <section className="panel practice-panel">
             <div className="section-heading">
               <div>
-                <span className="eyebrow">{t("practiceLabel")}</span>
+                <span className="eyebrow">
+                  {t(
+                    isIntervalMode ? "intervalPracticeLabel" : "practiceLabel",
+                  )}
+                </span>
 
-                <h2>{t("question")}</h2>
+                <h2>{t(isIntervalMode ? "intervalQuestion" : "question")}</h2>
               </div>
 
               <span className="clef-tag">{clefName}</span>
@@ -314,25 +325,31 @@ export default function App() {
               ariaLabel={
                 `${t("staffDescription")} ` +
                 `${clefName}. ` +
-                t("staffInstruction")
+                t(
+                  isIntervalMode
+                    ? "staffInstructionInterval"
+                    : "staffInstruction",
+                )
               }
             />
 
-            <div className="audio-controls">
-              <button
-                type="button"
-                className="button secondary"
-                onClick={playCurrentNote}
-                aria-keyshortcuts="P">
-                {t("play")}
-              </button>
+            {!isIntervalMode && (
+              <div className="audio-controls">
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={playCurrentNote}
+                  aria-keyshortcuts="P">
+                  {t("play")}
+                </button>
 
-              {audioError && (
-                <p className="input-error" role="alert">
-                  {t("audioError")}
-                </p>
-              )}
-            </div>
+                {audioError && (
+                  <p className="input-error" role="alert">
+                    {t("audioError")}
+                  </p>
+                )}
+              </div>
+            )}
 
             <form className="answer-form" onSubmit={handleSubmit}>
               <label htmlFor="note-answer">{t("yourAnswer")}</label>
@@ -347,11 +364,15 @@ export default function App() {
                   autoComplete="off"
                   autoCapitalize="off"
                   spellCheck={false}
+
                   placeholder={t(
-                    state.settings.answerMode === "letter"
-                      ? "placeholderLetter"
-                      : "placeholderOctave",
+                    isIntervalMode
+                      ? "placeholderInterval"
+                      : state.settings.answerMode === "letter"
+                        ? "placeholderLetter"
+                        : "placeholderOctave",
                   )}
+
                   aria-invalid={inputError !== null}
                   aria-describedby={inputError ? "answer-error" : undefined}
                   onChange={(event) => {
@@ -408,13 +429,15 @@ export default function App() {
                   </>
                 )
               ) : (
-                <span>{t("waiting")}</span>
+                <span>{t(isIntervalMode ? "waitingInterval" : "waiting")}</span>
               )}
             </div>
 
             <p className="keyboard-hint">{t("keyboardHint")}</p>
 
-            <p className="notation-hint">{t("notationHint")}</p>
+            <p className="notation-hint">
+              {t(isIntervalMode ? "intervalHint" : "notationHint")}
+            </p>
           </section>
 
           <div className="sidebar">
