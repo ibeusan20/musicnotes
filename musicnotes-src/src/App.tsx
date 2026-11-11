@@ -278,8 +278,8 @@ export default function App() {
                   practiceMode: event.target.value as Settings["practiceMode"],
                 })
               }>
-              <option value="notes">{t("modeNotes")}</option>
-              <option value="intervals">{t("modeIntervals")}</option>
+              <option value="notes">{t("modeNotesShort")}</option>
+              <option value="intervals">{t("modeIntervalsShort")}</option>
             </select>
           </label>
 

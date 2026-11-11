@@ -206,6 +206,7 @@ select:focus-visible {
 .mode-control select:hover {
     background: var(--primary-hover);
 }
+
 /* Main content */
 
 .main-grid {
@@ -635,6 +636,39 @@ select:focus-visible {
         flex-direction: column;
     }
 
+
+    /* Compact mobile header controls */
+    .header-controls {
+        display: grid;
+        grid-template-columns: 1.35fr 1fr 1fr;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .header-control {
+        min-width: 0;
+    }
+
+    .header-control span {
+        font-size: 0.72rem;
+    }
+
+    .header-controls select {
+        width: 100%;
+        min-width: 0;
+        min-height: 40px;
+        padding: 8px 5px;
+        font-size: 0.8rem;
+    }
+
+    /* Softer mode highlight on mobile */
+    .mode-control select,
+    .mode-control select:hover {
+        background: var(--tag);
+        border-color: var(--surface-border);
+        color: var(--tag-text);
+        font-weight: 600;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -99,6 +99,8 @@ const hr = {
   intervalHint:
     "Note čitaj slijeva nadesno. č = čista, m = mala, v = velika, sm = smanjena, pov = povećana.",
   staffInstructionInterval: "Prepoznaj interval između dviju nota.",
+  modeNotesShort: "Note",
+  modeIntervalsShort: "Intervali",
   } as const;
 
 const en: Record<keyof typeof hr, string> = {
@@ -201,6 +203,8 @@ const en: Record<keyof typeof hr, string> = {
   intervalHint:
     "Read notes from left to right. č = perfect, m = minor, v = major, sm = diminished, pov = augmented.",
   staffInstructionInterval: "Identify the interval between the two notes.",
+  modeNotesShort: "Notes",
+  modeIntervalsShort: "Intervals",
   };
 
 export type Language = "hr" | "en";
