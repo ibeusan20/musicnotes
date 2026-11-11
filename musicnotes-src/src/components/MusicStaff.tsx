@@ -54,7 +54,7 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
 
       const staveWidth = Math.min(
         logicalWidth - 12,
-        notes.length === 1 ? 230 : 320,
+        notes.length === 1 ? 180 : 200,
       );
 
       // Horizontal centering.

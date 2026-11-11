@@ -268,7 +268,22 @@ export default function App() {
         </div>
 
         <div className="header-controls">
-          <label className="header-control">
+          <label className="header-control mode-control">
+            <span>{t("practiceMode")}</span>
+            <select
+              value={state.settings.practiceMode}
+              onChange={(event) =>
+                handleSettingsChange({
+                  ...state.settings,
+                  practiceMode: event.target.value as Settings["practiceMode"],
+                })
+              }>
+              <option value="notes">{t("modeNotes")}</option>
+              <option value="intervals">{t("modeIntervals")}</option>
+            </select>
+          </label>
+
+          <label className="header-control header-control-compact">
             <span>{t("language")}</span>
 
             <select
@@ -284,7 +299,7 @@ export default function App() {
             </select>
           </label>
 
-          <label className="header-control">
+          <label className="header-control header-control-compact">
             <span>{t("appearance")}</span>
 
             <select

@@ -185,6 +185,27 @@ select:focus-visible {
     border-radius: 9px;
 }
 
+.header-control-compact select {
+    min-width: 0;
+    width: 100px;
+}
+
+/* Highlight practice mode selector */
+.mode-control span {
+    color: var(--accent);
+}
+
+.mode-control select {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.mode-control select:hover {
+    background: var(--primary-hover);
+}
 /* Main content */
 
 .main-grid {
