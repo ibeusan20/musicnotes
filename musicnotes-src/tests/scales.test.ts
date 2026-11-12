@@ -241,3 +241,47 @@ describe("Diatonic modes", () => {
     }
   });
 });
+
+
+describe("Croatian note name aliases", () => {
+  it("accepts b and hes for natural minor", () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      practiceMode: "scales" as const,
+      scaleLevel: "basic" as const,
+    };
+
+    const question = buildScaleQuestion(
+      "Db",
+      "minor-natural",
+      "treble",
+    );
+
+    expect(checkScaleAnswer("b mol", question, settings))
+      .toBe("correct");
+
+    expect(checkScaleAnswer("hes mol", question, settings))
+      .toBe("correct");
+  });
+
+  it("accepts b and hes for modes", () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      practiceMode: "modes" as const,
+    };
+
+    const question = buildScaleQuestion(
+      "Eb",
+      "mixolydian",
+      "treble",
+    );
+
+    expect(
+      checkScaleAnswer("B miksolidijski", question, settings),
+    ).toBe("correct");
+
+    expect(
+      checkScaleAnswer("hes miksolidijski", question, settings),
+    ).toBe("correct");
+  });
+});

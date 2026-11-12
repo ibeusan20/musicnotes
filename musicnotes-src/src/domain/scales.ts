@@ -267,16 +267,16 @@ function aliases(
   if (question.type.startsWith("minor-")) {
     const kind = NAMES[question.type];
 
-    return [
-      `${tonic}mol${kind}`,
-      `${tonic}${kind}mol`,
+    return tonics.flatMap((name) => [
+      `${name}mol${kind}`,
+      `${name}${kind}mol`,
       ...(question.type === "minor-natural" && level === "basic"
-        ? [`${tonic}mol`]
+        ? [`${name}mol`]
         : []),
-    ];
+    ]);
   }
 
-  return [`${tonic}${NAMES[question.type]}`];
+  return tonics.map((name) => `${name}${NAMES[question.type]}`);
 }
 
 export function checkScaleAnswer(
