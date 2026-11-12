@@ -1,7 +1,7 @@
 const hr = {
   documentTitle: "MusicNotes | Vježbanje nota",
   back: "← Natrag",
-  subtitle: "Nauči prepoznavati note na crtovlju.",
+  subtitle: "Vježbaj prepoznavanje nota, intervala, ljestvica i modusa.",
   appTag: "Vježbanje nota",
 
   language: "Jezik",
@@ -140,7 +140,7 @@ const hr = {
 const en: Record<keyof typeof hr, string> = {
   documentTitle: "MusicNotes | Note trainer",
   back: "← Back",
-  subtitle: "Learn to recognize notes on the staff.",
+  subtitle: "Practise recognizing notes, intervals, scales and modes.",
   appTag: "Music note trainer",
 
   language: "Language",
@@ -280,5 +280,4 @@ const en: Record<keyof typeof hr, string> = {
 export type Language = "hr" | "en";
 export type TranslationKey = keyof typeof hr;
 export type Translate = (key: TranslationKey) => string;
-
 export const translations = { hr, en };
