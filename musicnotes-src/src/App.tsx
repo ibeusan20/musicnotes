@@ -296,7 +296,7 @@ export default function App() {
           </a>
 
           <h1>MusicNotes</h1>
-          <p>{t("subtitle")}</p>
+          {/* <p>{t("subtitle")}</p> */}
         </div>
 
         <div className="header-controls">

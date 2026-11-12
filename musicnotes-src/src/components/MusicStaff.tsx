@@ -109,9 +109,9 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
       });
 
       const voice = new Voice({
-  numBeats: staveNotes.length * 4,
-  beatValue: 4,
-});
+        numBeats: staveNotes.length * 4,
+        beatValue: 4,
+      });
 
       voice.addTickables(staveNotes);
 
