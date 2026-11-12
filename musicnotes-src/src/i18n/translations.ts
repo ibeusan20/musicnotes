@@ -77,9 +77,9 @@ const hr = {
 
   reset: "Resetiranje",
   resetSession: "Resetiraj sesiju",
-  resetAll: "Obriši svu statistiku",
+  resetAll: "Obriši statistiku ovog načina",
   resetConfirm:
-    "Želiš li obrisati svu ukupnu statistiku? Ova radnja ne može se poništiti.",
+    "Obrisati ukupnu statistiku trenutačnog načina vježbanja? Ova radnja ne može se poništiti.",
 
   footer: "MusicNotes - vježbanje glazbene notacije",
   storageNotice: "Statistika se sprema lokalno.",
@@ -212,8 +212,9 @@ const en: Record<keyof typeof hr, string> = {
 
   reset: "Reset",
   resetSession: "Reset session",
-  resetAll: "Clear all statistics",
-  resetConfirm: "Clear all-time statistics? This action cannot be undone.",
+  resetAll: "Clear this mode's statistics",
+  resetConfirm:
+    "Clear the all-time statistics for the current practice mode? This action cannot be undone.",
 
   footer: "MusicNotes — music notation practice",
   storageNotice: "Statistics are stored in this browser.",
