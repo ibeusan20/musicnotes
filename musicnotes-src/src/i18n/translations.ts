@@ -131,6 +131,10 @@ const hr = {
   modeHint:
     "Jonski, dorski, frigijski, lidijski, miksolidijski, eolski i lokrijski modus.",
   staffInstructionMode: "Prepoznaj toniku i modus prikazane ljestvice.",
+
+  intervalStructure: "Građa intervala",
+  diatonicNumber: "dijatonski broj",
+  semitones: "polutonova",
 } as const;
 
 const en: Record<keyof typeof hr, string> = {
@@ -267,6 +271,10 @@ const en: Record<keyof typeof hr, string> = {
   modeHint:
     "Ionian, Dorian, Phrygian, Lydian, Mixolydian, Aeolian and Locrian.",
   staffInstructionMode: "Identify the tonic and mode of the written scale.",
+
+  intervalStructure: "Interval structure",
+  diatonicNumber: "diatonic number",
+  semitones: "semitones",
 };
 
 export type Language = "hr" | "en";

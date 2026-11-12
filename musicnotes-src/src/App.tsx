@@ -13,7 +13,11 @@ import Scoreboard from "./components/Scoreboard";
 import SettingsPanel from "./components/SettingsPanel";
 import { noteLabel, type Clef, type Settings } from "./domain/music";
 import { generatePracticeQuestion } from "./domain/exercises";
-import { checkIntervalAnswer, identifyInterval } from "./domain/intervals";
+import {
+  checkIntervalAnswer,
+  identifyInterval,
+  INTERVALS,
+} from "./domain/intervals";
 import { checkAnswer } from "./domain/quiz";
 import { createPracticeState, practiceReducer } from "./domain/practice";
 import { loadStoredData, saveStoredData } from "./lib/storage";
@@ -88,6 +92,11 @@ export default function App() {
             state.question.value,
             settings.answerMode === "letter-octave",
           );
+
+  const intervalDetails =
+    state.question.kind === "interval"
+      ? INTERVALS.find((item) => item.code === correctAnswer)
+      : undefined;
 
   const currentClef =
     state.question.kind === "scale"
@@ -360,19 +369,18 @@ export default function App() {
             <div className="section-heading">
               <div>
                 <span className="eyebrow">{t(copy.heading)}</span>
-<h2>{t(copy.question)}</h2>
+                <h2>{t(copy.question)}</h2>
               </div>
 
               <span className="clef-tag">{clefName}</span>
             </div>
 
             <MusicStaff
-  question={state.question}
-  ariaLabel={
-    `${t("staffDescription")} ${clefName}. ` +
-    t(copy.instruction)
-  }
-/>
+              question={state.question}
+              ariaLabel={
+                `${t("staffDescription")} ${clefName}. ` + t(copy.instruction)
+              }
+            />
 
             {state.question.kind === "note" && (
               <div className="audio-controls">
@@ -406,12 +414,12 @@ export default function App() {
                   autoCapitalize="off"
                   spellCheck={false}
 
-placeholder={t(
-  state.mode === "notes" &&
-    settings.answerMode === "letter-octave"
-    ? "placeholderOctave"
-    : copy.placeholder,
-)}
+                  placeholder={t(
+                    state.mode === "notes" &&
+                      settings.answerMode === "letter-octave"
+                      ? "placeholderOctave"
+                      : copy.placeholder,
+                  )}
 
                   aria-invalid={inputError !== null}
                   aria-describedby={inputError ? "answer-error" : undefined}
@@ -478,6 +486,15 @@ placeholder={t(
                 <span>{t(copy.waiting)}</span>
               )}
             </div>
+
+            {isAnswered && intervalDetails && (
+              <p className="notation-hint">
+                {t("intervalStructure")}: {t("diatonicNumber")}{" "}
+                {intervalDetails.degree}
+                {" · "}
+                {intervalDetails.semitones} {t("semitones")}
+              </p>
+            )}
 
             <p className="keyboard-hint">{t("keyboardHint")}</p>
 
