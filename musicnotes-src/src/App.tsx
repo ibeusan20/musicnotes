@@ -36,6 +36,7 @@ import {
 
 import { version } from "../package.json";
 import "./App.css";
+import { PRACTICE_COPY } from "./i18n/practicecopy";
 
 const CLEF_LABELS: Record<Clef, TranslationKey> = {
   treble: "clefTreble",
@@ -57,6 +58,7 @@ export default function App() {
   });
 
   const settings = state.profiles[state.mode].settings;
+  const copy = PRACTICE_COPY[state.mode];
   const total = state.profiles[state.mode].total;
 
   const [ui, setUi] = useState(loadUiPreferences);
@@ -357,49 +359,20 @@ export default function App() {
           <section className="panel practice-panel">
             <div className="section-heading">
               <div>
-                <span className="eyebrow">
-                  {t(
-                    state.mode === "modes"
-                      ? "modePracticeLabel"
-                      : state.mode === "scales"
-                        ? "scalePracticeLabel"
-                        : state.mode === "intervals"
-                          ? "intervalPracticeLabel"
-                          : "practiceLabel",
-                  )}
-                </span>
-
-                <h2>
-                  {t(
-                    state.mode === "modes"
-                      ? "modeQuestion"
-                      : state.mode === "scales"
-                        ? "scaleQuestion"
-                        : state.mode === "intervals"
-                          ? "intervalQuestion"
-                          : "question",
-                  )}
-                </h2>
+                <span className="eyebrow">{t(copy.heading)}</span>
+<h2>{t(copy.question)}</h2>
               </div>
 
               <span className="clef-tag">{clefName}</span>
             </div>
 
             <MusicStaff
-              question={state.question}
-              ariaLabel={
-                `${t("staffDescription")} ${clefName}. ` +
-                t(
-                  state.mode === "modes"
-                    ? "staffInstructionMode"
-                    : state.mode === "scales"
-                      ? "staffInstructionScale"
-                      : state.mode === "intervals"
-                        ? "staffInstructionInterval"
-                        : "staffInstruction",
-                )
-              }
-            />
+  question={state.question}
+  ariaLabel={
+    `${t("staffDescription")} ${clefName}. ` +
+    t(copy.instruction)
+  }
+/>
 
             {state.question.kind === "note" && (
               <div className="audio-controls">
@@ -433,17 +406,12 @@ export default function App() {
                   autoCapitalize="off"
                   spellCheck={false}
 
-                  placeholder={t(
-                    state.mode === "modes"
-                      ? "placeholderMode"
-                      : state.mode === "scales"
-                        ? "placeholderScale"
-                        : state.mode === "intervals"
-                          ? "placeholderInterval"
-                          : settings.answerMode === "letter"
-                            ? "placeholderLetter"
-                            : "placeholderOctave",
-                  )}
+placeholder={t(
+  state.mode === "notes" &&
+    settings.answerMode === "letter-octave"
+    ? "placeholderOctave"
+    : copy.placeholder,
+)}
 
                   aria-invalid={inputError !== null}
                   aria-describedby={inputError ? "answer-error" : undefined}
@@ -507,33 +475,13 @@ export default function App() {
                   </>
                 )
               ) : (
-                <span>
-                  {t(
-                    state.mode === "modes"
-                      ? "waitingMode"
-                      : state.mode === "scales"
-                        ? "waitingScale"
-                        : state.mode === "intervals"
-                          ? "waitingInterval"
-                          : "waiting",
-                  )}
-                </span>
+                <span>{t(copy.waiting)}</span>
               )}
             </div>
 
             <p className="keyboard-hint">{t("keyboardHint")}</p>
 
-            <p className="notation-hint">
-              {t(
-                state.mode === "modes"
-                  ? "modeHint"
-                  : state.mode === "scales"
-                    ? "scaleHint"
-                    : state.mode === "intervals"
-                      ? "intervalHint"
-                      : "notationHint",
-              )}
-            </p>
+            <p className="notation-hint">{t(copy.hint)}</p>
           </section>
 
           <div className="sidebar">
