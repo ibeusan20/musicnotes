@@ -1,5 +1,37 @@
 # musicnotes
 
+
+MusicNotes is a browser-based music theory practice application
+built with React, TypeScript, Vite and VexFlow.
+
+## Features
+
+- Note recognition in treble, bass, alto and tenor clefs
+- Written interval recognition
+- Major and minor scale recognition
+- Diatonic mode recognition
+- Independent settings and statistics for each practice mode
+- Croatian and English interface
+- Light, dark and system themes
+- Local progress persistence
+
+## Local development
+
+Requirements: Node.js 24 and npm.
+
+```bash
+cd musicnotes-src
+npm ci
+npm run dev
+```
+
+Run tests and production build:
+
+```bash
+npm test
+npm run build
+```
+
 ## CI/CD Pipeline
 
 Deployment is automated using **GitHub Actions** and follows a cross-repository CI/CD workflow.
@@ -23,6 +55,10 @@ On every push to `main` (or manual trigger):
 
 ## License
 
-Copyright © 2026 Ivan Beusan.
+Copyright © 2026 Ivan Beusan. All rights reserved.
 
-Licensed under the [MIT License](LICENSE).
+This project is proprietary software, not open source.
+Reuse, modification or distribution of the source code requires
+prior written permission from the copyright holder.
+
+See [LICENSE](LICENSE) for details.

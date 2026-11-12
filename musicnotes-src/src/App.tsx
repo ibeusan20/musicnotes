@@ -13,7 +13,11 @@ import Scoreboard from "./components/Scoreboard";
 import SettingsPanel from "./components/SettingsPanel";
 import { noteLabel, type Clef, type Settings } from "./domain/music";
 import { generatePracticeQuestion } from "./domain/exercises";
-import { checkIntervalAnswer, identifyInterval } from "./domain/intervals";
+import {
+  checkIntervalAnswer,
+  identifyInterval,
+  INTERVALS,
+} from "./domain/intervals";
 import { checkAnswer } from "./domain/quiz";
 import { createPracticeState, practiceReducer } from "./domain/practice";
 import { loadStoredData, saveStoredData } from "./lib/storage";
@@ -36,6 +40,7 @@ import {
 
 import { version } from "../package.json";
 import "./App.css";
+import { PRACTICE_COPY } from "./i18n/practicecopy";
 
 const CLEF_LABELS: Record<Clef, TranslationKey> = {
   treble: "clefTreble",
@@ -57,6 +62,7 @@ export default function App() {
   });
 
   const settings = state.profiles[state.mode].settings;
+  const copy = PRACTICE_COPY[state.mode];
   const total = state.profiles[state.mode].total;
 
   const [ui, setUi] = useState(loadUiPreferences);
@@ -86,6 +92,11 @@ export default function App() {
             state.question.value,
             settings.answerMode === "letter-octave",
           );
+
+  const intervalDetails =
+    state.question.kind === "interval"
+      ? INTERVALS.find((item) => item.code === correctAnswer)
+      : undefined;
 
   const currentClef =
     state.question.kind === "scale"
@@ -296,7 +307,7 @@ export default function App() {
           </a>
 
           <h1>MusicNotes</h1>
-          <p>{t("subtitle")}</p>
+          {/* <p>{t("subtitle")}</p> */}
         </div>
 
         <div className="header-controls">
@@ -357,29 +368,8 @@ export default function App() {
           <section className="panel practice-panel">
             <div className="section-heading">
               <div>
-                <span className="eyebrow">
-                  {t(
-                    state.mode === "modes"
-                      ? "modePracticeLabel"
-                      : state.mode === "scales"
-                        ? "scalePracticeLabel"
-                        : state.mode === "intervals"
-                          ? "intervalPracticeLabel"
-                          : "practiceLabel",
-                  )}
-                </span>
-
-                <h2>
-                  {t(
-                    state.mode === "modes"
-                      ? "modeQuestion"
-                      : state.mode === "scales"
-                        ? "scaleQuestion"
-                        : state.mode === "intervals"
-                          ? "intervalQuestion"
-                          : "question",
-                  )}
-                </h2>
+                <span className="eyebrow">{t(copy.heading)}</span>
+                <h2>{t(copy.question)}</h2>
               </div>
 
               <span className="clef-tag">{clefName}</span>
@@ -388,16 +378,7 @@ export default function App() {
             <MusicStaff
               question={state.question}
               ariaLabel={
-                `${t("staffDescription")} ${clefName}. ` +
-                t(
-                  state.mode === "modes"
-                    ? "staffInstructionMode"
-                    : state.mode === "scales"
-                      ? "staffInstructionScale"
-                      : state.mode === "intervals"
-                        ? "staffInstructionInterval"
-                        : "staffInstruction",
-                )
+                `${t("staffDescription")} ${clefName}. ` + t(copy.instruction)
               }
             />
 
@@ -434,15 +415,10 @@ export default function App() {
                   spellCheck={false}
 
                   placeholder={t(
-                    state.mode === "modes"
-                      ? "placeholderMode"
-                      : state.mode === "scales"
-                        ? "placeholderScale"
-                        : state.mode === "intervals"
-                          ? "placeholderInterval"
-                          : settings.answerMode === "letter"
-                            ? "placeholderLetter"
-                            : "placeholderOctave",
+                    state.mode === "notes" &&
+                      settings.answerMode === "letter-octave"
+                      ? "placeholderOctave"
+                      : copy.placeholder,
                   )}
 
                   aria-invalid={inputError !== null}
@@ -507,33 +483,22 @@ export default function App() {
                   </>
                 )
               ) : (
-                <span>
-                  {t(
-                    state.mode === "modes"
-                      ? "waitingMode"
-                      : state.mode === "scales"
-                        ? "waitingScale"
-                        : state.mode === "intervals"
-                          ? "waitingInterval"
-                          : "waiting",
-                  )}
-                </span>
+                <span>{t(copy.waiting)}</span>
               )}
             </div>
 
+            {isAnswered && intervalDetails && (
+              <p className="notation-hint">
+                {t("intervalStructure")}: {t("diatonicNumber")}{" "}
+                {intervalDetails.degree}
+                {" · "}
+                {intervalDetails.semitones} {t("semitones")}
+              </p>
+            )}
+
             <p className="keyboard-hint">{t("keyboardHint")}</p>
 
-            <p className="notation-hint">
-              {t(
-                state.mode === "modes"
-                  ? "modeHint"
-                  : state.mode === "scales"
-                    ? "scaleHint"
-                    : state.mode === "intervals"
-                      ? "intervalHint"
-                      : "notationHint",
-              )}
-            </p>
+            <p className="notation-hint">{t(copy.hint)}</p>
           </section>
 
           <div className="sidebar">

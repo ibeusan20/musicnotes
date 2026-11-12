@@ -1,7 +1,7 @@
 const hr = {
   documentTitle: "MusicNotes | Vježbanje nota",
   back: "← Natrag",
-  subtitle: "Nauči prepoznavati note na crtovlju.",
+  subtitle: "Vježbaj prepoznavanje nota, intervala, ljestvica i modusa.",
   appTag: "Vježbanje nota",
 
   language: "Jezik",
@@ -77,9 +77,9 @@ const hr = {
 
   reset: "Resetiranje",
   resetSession: "Resetiraj sesiju",
-  resetAll: "Obriši svu statistiku",
+  resetAll: "Obriši statistiku ovog načina",
   resetConfirm:
-    "Želiš li obrisati svu ukupnu statistiku? Ova radnja ne može se poništiti.",
+    "Obrisati ukupnu statistiku trenutačnog načina vježbanja? Ova radnja ne može se poništiti.",
 
   footer: "MusicNotes - vježbanje glazbene notacije",
   storageNotice: "Statistika se sprema lokalno.",
@@ -131,12 +131,16 @@ const hr = {
   modeHint:
     "Jonski, dorski, frigijski, lidijski, miksolidijski, eolski i lokrijski modus.",
   staffInstructionMode: "Prepoznaj toniku i modus prikazane ljestvice.",
+
+  intervalStructure: "Građa intervala",
+  diatonicNumber: "dijatonski broj",
+  semitones: "polutonova",
 } as const;
 
 const en: Record<keyof typeof hr, string> = {
   documentTitle: "MusicNotes | Note trainer",
   back: "← Back",
-  subtitle: "Learn to recognize notes on the staff.",
+  subtitle: "Practise recognizing notes, intervals, scales and modes.",
   appTag: "Music note trainer",
 
   language: "Language",
@@ -212,8 +216,9 @@ const en: Record<keyof typeof hr, string> = {
 
   reset: "Reset",
   resetSession: "Reset session",
-  resetAll: "Clear all statistics",
-  resetConfirm: "Clear all-time statistics? This action cannot be undone.",
+  resetAll: "Clear this mode's statistics",
+  resetConfirm:
+    "Clear the all-time statistics for the current practice mode? This action cannot be undone.",
 
   footer: "MusicNotes — music notation practice",
   storageNotice: "Statistics are stored in this browser.",
@@ -266,10 +271,13 @@ const en: Record<keyof typeof hr, string> = {
   modeHint:
     "Ionian, Dorian, Phrygian, Lydian, Mixolydian, Aeolian and Locrian.",
   staffInstructionMode: "Identify the tonic and mode of the written scale.",
+
+  intervalStructure: "Interval structure",
+  diatonicNumber: "diatonic number",
+  semitones: "semitones",
 };
 
 export type Language = "hr" | "en";
 export type TranslationKey = keyof typeof hr;
 export type Translate = (key: TranslationKey) => string;
-
 export const translations = { hr, en };
