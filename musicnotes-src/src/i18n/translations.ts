@@ -150,7 +150,7 @@ const hr = {
   invalidChord: "Upiši valjanu oznaku akorda, npr. D53, M6, D64 ili VD7.",
   waitingChord: "Odredi vrstu i obrat akorda pa pritisni Enter.",
   chordHint:
-    "D = dur, M = mol, S = smanjeni, P = povećani. Brojke označavaju položaj ili obrat akorda.",
+  "D = dur, M = mol, S/Sm = smanjeni, P/Pov = povećani. Brojke označavaju položaj ili obrat akorda.",
   staffInstructionChord:
     "Prepoznaj vrstu akorda i njegov obrat prema istodobno zapisanim notama.",
 } as const;
@@ -308,7 +308,7 @@ const en: Record<keyof typeof hr, string> = {
   invalidChord: "Enter a valid chord code, e.g. D53, M6, D64 or VD7.",
   waitingChord: "Identify the chord type and inversion, then press Enter.",
   chordHint:
-    "D = major, M = minor, S = diminished, P = augmented. The figures indicate the chord position or inversion.",
+  "D = major, M = minor, S/Sm = diminished, P/Pov = augmented. Figures indicate the chord position or inversion.",
   staffInstructionChord:
     "Identify the chord quality and inversion from the simultaneously written notes.",
 };

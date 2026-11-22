@@ -281,4 +281,25 @@ describe("Chord generation", () => {
       expect(identifyChord(question.value)).not.toBeNull();
     }
   });
+
+  it.each([
+    ["diminished", "S", "Sm"],
+    ["augmented", "P", "Pov"],
+    ["diminished-seventh", "S", "Sm"],
+    ["augmented-seventh", "P", "Pov"],
+  ] as const)("accepts both %s abbreviations", (type, short, long) => {
+    const definition = CHORD_TYPES.find((item) => item.id === type)!;
+
+    for (
+      let inversion = 0;
+      inversion < definition.semitones.length;
+      inversion++
+    ) {
+      const question = buildChordQuestion(type, inversion, C4)!;
+      const figures = chordCode(type, inversion).slice(short.length);
+
+      expect(checkChordAnswer(short + figures, question)).toBe("correct");
+      expect(checkChordAnswer(long + figures, question)).toBe("correct");
+    }
+  });
 });
