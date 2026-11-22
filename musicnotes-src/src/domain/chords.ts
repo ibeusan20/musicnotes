@@ -1,5 +1,4 @@
 import {
-  CLEFS,
   LETTERS,
   createNotePool,
   indexToPitch,
@@ -8,6 +7,8 @@ import {
   type Clef,
   type Question,
   type Settings,
+  diatonicIndex,
+  selectedClefs,
 } from "./music";
 
 import { midiNumber } from "./audio";
@@ -54,10 +55,6 @@ const ALTERATIONS = new Map<number, AccidentalType>([
   [1, "sharp"],
   [2, "double-sharp"],
 ]);
-
-function diatonicIndex(note: Question): number {
-  return note.octave * 7 + LETTERS.indexOf(note.letter);
-}
 
 function chordDefinition(type: ChordType) {
   const definition = CHORD_TYPES.find((item) => item.id === type);
@@ -218,13 +215,7 @@ export function generateChordQuestion(
   settings: Settings,
   previous?: ChordQuestion,
 ): ChordQuestion {
-  const clefs: readonly Clef[] =
-    settings.clef === "random"
-      ? CLEFS
-      : settings.clef === "treble-bass"
-        ? ["treble", "bass"]
-        : [settings.clef];
-
+  const clefs = selectedClefs(settings.clef);
   const combinations = allowedTypes(settings).flatMap((definition) =>
     definition.semitones.map((_, inversion) => ({
       type: definition.id,

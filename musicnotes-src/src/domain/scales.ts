@@ -1,8 +1,8 @@
 import {
-  CLEFS,
   LETTERS,
   indexToPitch,
   noteName,
+  selectedClefs,
   type AccidentalType,
   type Clef,
   type Letter,
@@ -196,13 +196,7 @@ export function generateScaleQuestion(
   settings: Settings,
   previous?: ScaleQuestion,
 ): ScaleQuestion {
-  const clefs: readonly Clef[] =
-    settings.clef === "random"
-      ? CLEFS
-      : settings.clef === "treble-bass"
-        ? ["treble", "bass"]
-        : [settings.clef];
-
+  const clefs = selectedClefs(settings.clef);
   const pool = MAJOR_KEYS.flatMap((keySignature) =>
     allowedTypes(settings).flatMap((type) =>
       clefs.map((clef) => buildScaleQuestion(keySignature, type, clef)),

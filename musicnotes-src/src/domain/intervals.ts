@@ -1,11 +1,11 @@
 import {
   createNotePool,
   indexToPitch,
-  LETTERS,
   sameQuestion,
   type AccidentalType,
   type Question,
   type Settings,
+  diatonicIndex,
 } from "./music";
 
 import { midiNumber } from "./audio";
@@ -82,10 +82,6 @@ const OFFSET_TO_ACCIDENTAL = new Map<number, AccidentalType>([
   [1, "sharp"],
   [2, "double-sharp"],
 ]);
-
-function diatonicIndex(note: Pick<Question, "letter" | "octave">): number {
-  return note.octave * LETTERS.length + LETTERS.indexOf(note.letter);
-}
 
 // Identify the written interval using both diatonic and chromatic distance.
 export function identifyInterval(
