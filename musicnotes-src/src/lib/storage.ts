@@ -60,6 +60,7 @@ function parseSettings(value: unknown, mode: PracticeMode): Settings {
     accidentalLevel,
     intervalLevel,
     scaleLevel,
+    chordLevel,
   } = value;
 
   return {
@@ -103,6 +104,11 @@ function parseSettings(value: unknown, mode: PracticeMode): Settings {
       scaleLevel === "basic" || scaleLevel === "all"
         ? scaleLevel
         : fallback.scaleLevel,
+
+    chordLevel:
+      chordLevel === "basic" || chordLevel === "triads"  || chordLevel === "sevenths" || chordLevel === "all"
+        ? chordLevel
+        : fallback.chordLevel,
   };
 }
 

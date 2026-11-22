@@ -46,4 +46,13 @@ export const PRACTICE_COPY = {
     waiting: "waitingMode",
     hint: "modeHint",
   },
+
+  chords: {
+    heading: "chordPracticeLabel",
+    question: "chordQuestion",
+    instruction: "staffInstructionChord",
+    placeholder: "placeholderChord",
+    waiting: "waitingChord",
+    hint: "chordHint",
+  },
 } satisfies Record<PracticeMode, PracticeCopy>;

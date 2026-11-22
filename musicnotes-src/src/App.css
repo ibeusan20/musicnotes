@@ -572,6 +572,23 @@ select:focus-visible {
     max-width: none;
 }
 
+/* Stacked figured-bass numbers without a fraction line. */
+.chord-symbol {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.1em;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.chord-figures {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.8em;
+    line-height: 0.85;
+}
+
 /* Responsive */
 
 @media (max-width: 900px) {

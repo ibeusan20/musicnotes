@@ -135,6 +135,29 @@ const hr = {
   intervalStructure: "Građa intervala",
   diatonicNumber: "dijatonski broj",
   semitones: "polutonova",
+
+  modeChords: "Prepoznavanje akorada",
+  modeChordsShort: "Akordi",
+
+  chordPracticeLabel: "PREPOZNAJ AKORD",
+  chordQuestion: "Koji je ovo akord?",
+  chordLevel: "Skup akorada",
+  chordBasic: "Durski i molski (6 oblika)",
+  chordTriads: "Svi kvintakordi (12 oblika)",
+  chordAll: "I septakordi (40 oblika)",
+
+  placeholderChord: "Npr. D53, M6, D64 ili VD7",
+  invalidChord: "Upiši valjanu oznaku akorda, npr. D53, M6, D64 ili VD7.",
+  waitingChord: "Odredi vrstu i obrat akorda pa pritisni Enter.",
+  chordTriadHint:
+    "D = durski, M = molski, S/Sm = smanjeni, P/Pov = povećani. Obrati: 53 = kvintakord, 6 = sekstakord, 64 = kvartsekstakord.",
+
+  chordHint:
+    "D/MD = mali durski, VD = veliki durski, MM = mali molski, VM = veliki molski, MS/MSm = mali smanjeni, S/Sm = smanjeni, P/Pov = povećani septakord. Obrati: 7, 65, 43 i 2.",
+  staffInstructionChord:
+    "Prepoznaj vrstu akorda i njegov obrat prema istodobno zapisanim notama.",
+
+  chordSevenths: "Samo septakordi (28 oblika)",
 } as const;
 
 const en: Record<keyof typeof hr, string> = {
@@ -275,6 +298,29 @@ const en: Record<keyof typeof hr, string> = {
   intervalStructure: "Interval structure",
   diatonicNumber: "diatonic number",
   semitones: "semitones",
+
+  modeChords: "Chord recognition",
+  modeChordsShort: "Chords",
+
+  chordPracticeLabel: "IDENTIFY THE CHORD",
+  chordQuestion: "Which chord is this?",
+  chordLevel: "Chord set",
+  chordBasic: "Major and minor (6 forms)",
+  chordTriads: "All triads (12 forms)",
+  chordAll: "Including seventh chords (40 forms)",
+
+  placeholderChord: "E.g. D53, M6, D64 or VD7",
+  invalidChord: "Enter a valid chord code, e.g. D53, M6, D64 or VD7.",
+  waitingChord: "Identify the chord type and inversion, then press Enter.",
+  chordTriadHint:
+    "D = major, M = minor, S/Sm = diminished, P/Pov = augmented. Inversions: 53 = root position, 6 = first inversion, 64 = second inversion.",
+
+  chordHint:
+    "D/MD = dominant seventh, VD = major seventh, MM = minor seventh, VM = minor-major seventh, MS/MSm = half-diminished, S/Sm = diminished, P/Pov = augmented seventh. Inversions: 7, 65, 43 and 2.",
+  staffInstructionChord:
+    "Identify the chord quality and inversion from the simultaneously written notes.",
+
+  chordSevenths: "Seventh chords only (28 forms)",
 };
 
 export type Language = "hr" | "en";

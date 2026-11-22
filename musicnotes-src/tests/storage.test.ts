@@ -140,4 +140,55 @@ describe("Lokalno spremanje", () => {
       }),
     ).not.toThrow();
   });
+
+  it("adds a chord profile without losing existing v2 statistics", () => {
+    const storage = createStorage();
+    vi.stubGlobal("localStorage", storage);
+
+    const profiles = createDefaultProfiles();
+
+    profiles.notes.total.correct = 25;
+    profiles.intervals.total.correct = 12;
+
+    // Simulate saved data from before the chord mode existed.
+    storage.setItem(
+      "musicnotes.v2",
+      JSON.stringify({
+        version: 2,
+        mode: "notes",
+        profiles: {
+          notes: profiles.notes,
+          intervals: profiles.intervals,
+          scales: profiles.scales,
+          modes: profiles.modes,
+        },
+        legacyTotal: null,
+      }),
+    );
+
+    const loaded = loadStoredData();
+
+    expect(loaded.profiles.notes.total.correct).toBe(25);
+    expect(loaded.profiles.intervals.total.correct).toBe(12);
+    expect(loaded.profiles.chords.total.correct).toBe(0);
+    expect(loaded.profiles.chords.settings.chordLevel).toBe("basic");
+  });
+
+  it("persists the seventh chord practice level", () => {
+    vi.stubGlobal("localStorage", createStorage());
+
+    const profiles = createDefaultProfiles();
+    profiles.chords.settings.chordLevel = "sevenths";
+
+    saveStoredData({
+      mode: "chords",
+      profiles,
+      legacyTotal: null,
+    });
+
+    const loaded = loadStoredData();
+
+    expect(loaded.mode).toBe("chords");
+    expect(loaded.profiles.chords.settings.chordLevel).toBe("sevenths");
+  });
 });

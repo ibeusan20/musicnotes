@@ -4,11 +4,12 @@ export type Clef = "treble" | "bass" | "alto" | "tenor";
 export type ClefSelection = Clef | "random" | "treble-bass";
 export type Difficulty = "basic" | "extended" | "advanced";
 export type AnswerMode = "letter" | "letter-octave";
-export const PRACTICE_MODES = ["notes", "intervals", "scales", "modes"] as const;
+export const PRACTICE_MODES = ["notes", "intervals", "scales", "modes", "chords"] as const;
 export type PracticeMode = (typeof PRACTICE_MODES)[number];
 export type IntervalLevel = "common" | "all";
 export type AccidentalLevel = "off" | "single" | "double";
 export type ScaleLevel = "basic" | "all";
+export type ChordLevel = "basic" | "triads" | "sevenths" | "all";
 
 export const ACCIDENTALS = [
   "none",
@@ -29,6 +30,7 @@ export interface Settings {
   intervalLevel: IntervalLevel;
   scaleLevel: ScaleLevel;
   accidentalLevel: AccidentalLevel;
+  chordLevel: ChordLevel;
 }
 
 export interface Question {
@@ -46,6 +48,7 @@ export const DEFAULT_SETTINGS: Settings = {
   intervalLevel: "common",
   scaleLevel: "basic",
   accidentalLevel: "off",
+  chordLevel: "basic",
 };
 
 export const CLEF_NAMES: Record<Clef, string> = {

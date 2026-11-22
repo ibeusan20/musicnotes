@@ -11,6 +11,7 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
   const isIntervalMode = settings.practiceMode === "intervals";
   const isScaleMode = settings.practiceMode === "scales";
   const isModeMode = settings.practiceMode === "modes";
+  const isChordMode = settings.practiceMode === "chords";
 
   return (
     <section className="panel">
@@ -34,6 +35,7 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
             <option value="intervals">{t("modeIntervals")}</option>
             <option value="scales">{t("modeScales")}</option>
             <option value="modes">{t("modeModes")}</option>
+            <option value="chords">{t("modeChords")}</option>
           </select>
         </label>
 
@@ -91,6 +93,23 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
               }>
               <option value="common">{t("intervalCommon")}</option>
               <option value="all">{t("intervalAll")}</option>
+            </select>
+          </label>
+        ) : isChordMode ? (
+          <label className="field">
+            <span>{t("chordLevel")}</span>
+            <select
+              value={settings.chordLevel}
+              onChange={(event) =>
+                onChange({
+                  ...settings,
+                  chordLevel: event.target.value as Settings["chordLevel"],
+                })
+              }>
+              <option value="basic">{t("chordBasic")}</option>
+              <option value="triads">{t("chordTriads")}</option>
+              <option value="sevenths">{t("chordSevenths")}</option>
+              <option value="all">{t("chordAll")}</option>
             </select>
           </label>
         ) : isScaleMode ? (

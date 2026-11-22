@@ -21,6 +21,7 @@ const STAFF_SCALE = 1.3;
 export default function MusicStaff({ question, ariaLabel }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isScale = question.kind === "scale";
+  const isChord = question.kind === "chord";
 
   useEffect(() => {
     const container = containerRef.current;
@@ -67,7 +68,9 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
       // SHorter stave for a single note.
       const staveWidth = isScale
         ? logicalWidth - 24
-        : Math.min(logicalWidth - 12, notes.length === 1 ? 100 : 130);
+        : isChord
+          ? Math.min(logicalWidth - 12, 180)
+          : Math.min(logicalWidth - 12, notes.length === 1 ? 100 : 130);
 
       // Horizontal centering.
       const staveX = (logicalWidth - staveWidth) / 2;
@@ -92,18 +95,24 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
         "double-flat": "bb",
       };
 
-      const staveNotes = notes.map((source) => {
-        const key = `${source.letter.toLowerCase()}/${source.octave}`;
+      const noteGroups = isChord ? [notes] : notes.map((note) => [note]);
+
+      const staveNotes = noteGroups.map((group) => {
+        const keys = group.map(
+          (source) => `${source.letter.toLowerCase()}/${source.octave}`,
+        );
 
         const note = new StaveNote({
-          keys: [key],
+          keys,
           duration: "w",
           clef,
         });
 
-        if (source.accidental !== "none") {
-          note.addModifier(new Accidental(symbols[source.accidental]), 0);
-        }
+        group.forEach((source, index) => {
+          if (source.accidental !== "none") {
+            note.addModifier(new Accidental(symbols[source.accidental]), index);
+          }
+        });
 
         return note;
       });
