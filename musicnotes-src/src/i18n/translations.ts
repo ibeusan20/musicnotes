@@ -135,6 +135,24 @@ const hr = {
   intervalStructure: "Građa intervala",
   diatonicNumber: "dijatonski broj",
   semitones: "polutonova",
+
+  modeChords: "Prepoznavanje akorada",
+  modeChordsShort: "Akordi",
+
+  chordPracticeLabel: "PREPOZNAJ AKORD",
+  chordQuestion: "Koji je ovo akord?",
+  chordLevel: "Skup akorada",
+  chordBasic: "Durski i molski (6 oblika)",
+  chordTriads: "Svi kvintakordi (12 oblika)",
+  chordAll: "I septakordi (40 oblika)",
+
+  placeholderChord: "Npr. D53, M6, D64 ili VD7",
+  invalidChord: "Upiši valjanu oznaku akorda, npr. D53, M6, D64 ili VD7.",
+  waitingChord: "Odredi vrstu i obrat akorda pa pritisni Enter.",
+  chordHint:
+    "D = dur, M = mol, S = smanjeni, P = povećani. Brojke označavaju položaj ili obrat akorda.",
+  staffInstructionChord:
+    "Prepoznaj vrstu akorda i njegov obrat prema istodobno zapisanim notama.",
 } as const;
 
 const en: Record<keyof typeof hr, string> = {
@@ -275,6 +293,24 @@ const en: Record<keyof typeof hr, string> = {
   intervalStructure: "Interval structure",
   diatonicNumber: "diatonic number",
   semitones: "semitones",
+
+  modeChords: "Chord recognition",
+  modeChordsShort: "Chords",
+
+  chordPracticeLabel: "IDENTIFY THE CHORD",
+  chordQuestion: "Which chord is this?",
+  chordLevel: "Chord set",
+  chordBasic: "Major and minor (6 forms)",
+  chordTriads: "All triads (12 forms)",
+  chordAll: "Including seventh chords (40 forms)",
+
+  placeholderChord: "E.g. D53, M6, D64 or VD7",
+  invalidChord: "Enter a valid chord code, e.g. D53, M6, D64 or VD7.",
+  waitingChord: "Identify the chord type and inversion, then press Enter.",
+  chordHint:
+    "D = major, M = minor, S = diminished, P = augmented. The figures indicate the chord position or inversion.",
+  staffInstructionChord:
+    "Identify the chord quality and inversion from the simultaneously written notes.",
 };
 
 export type Language = "hr" | "en";

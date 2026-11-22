@@ -23,6 +23,8 @@ import { createPracticeState, practiceReducer } from "./domain/practice";
 import { loadStoredData, saveStoredData } from "./lib/storage";
 import { playNote } from "./lib/audio";
 import { checkScaleAnswer, scaleAnswerLabel } from "./domain/scales";
+import ChordSymbol from "./components/ChordSymbol";
+import { checkChordAnswer, identifyChord } from "./domain/chords";
 
 import {
   loadUiPreferences,
@@ -73,6 +75,7 @@ export default function App() {
     | "invalidOctave"
     | "invalidInterval"
     | "invalidScale"
+    | "invalidChord"
     | null
   >(null);
 
@@ -84,14 +87,23 @@ export default function App() {
   const isAnswered = state.phase === "answered";
 
   const correctAnswer =
-    state.question.kind === "scale"
-      ? scaleAnswerLabel(state.question.value)
-      : state.question.kind === "interval"
-        ? (identifyInterval(state.question.value) ?? "")
-        : noteLabel(
-            state.question.value,
-            settings.answerMode === "letter-octave",
-          );
+    state.question.kind === "chord"
+      ? (identifyChord(state.question.value) ?? "")
+      : state.question.kind === "scale"
+        ? scaleAnswerLabel(state.question.value)
+        : state.question.kind === "interval"
+          ? (identifyInterval(state.question.value) ?? "")
+          : noteLabel(
+              state.question.value,
+              settings.answerMode === "letter-octave",
+            );
+
+  const displayedAnswer =
+    state.question.kind === "chord" ? (
+      <ChordSymbol code={correctAnswer} />
+    ) : (
+      correctAnswer
+    );
 
   const intervalDetails =
     state.question.kind === "interval"
@@ -99,7 +111,7 @@ export default function App() {
       : undefined;
 
   const currentClef =
-    state.question.kind === "scale"
+    state.question.kind === "scale" || state.question.kind === "chord"
       ? state.question.value.clef
       : state.question.kind === "interval"
         ? state.question.value.first.clef
@@ -224,23 +236,26 @@ export default function App() {
       nextQuestion();
       return;
     }
-
     const result =
-      state.question.kind === "scale"
-        ? checkScaleAnswer(answer, state.question.value, settings)
-        : state.question.kind === "interval"
-          ? checkIntervalAnswer(answer, state.question.value)
-          : checkAnswer(answer, state.question.value, settings.answerMode);
+      state.question.kind === "chord"
+        ? checkChordAnswer(answer, state.question.value)
+        : state.question.kind === "scale"
+          ? checkScaleAnswer(answer, state.question.value, settings)
+          : state.question.kind === "interval"
+            ? checkIntervalAnswer(answer, state.question.value)
+            : checkAnswer(answer, state.question.value, settings.answerMode);
 
     if (result === "invalid") {
       setInputError(
-        state.question.kind === "scale"
-          ? "invalidScale"
-          : state.question.kind === "interval"
-            ? "invalidInterval"
-            : settings.answerMode === "letter"
-              ? "invalidLetter"
-              : "invalidOctave",
+        state.question.kind === "chord"
+          ? "invalidChord"
+          : state.question.kind === "scale"
+            ? "invalidScale"
+            : state.question.kind === "interval"
+              ? "invalidInterval"
+              : settings.answerMode === "letter"
+                ? "invalidLetter"
+                : "invalidOctave",
       );
 
       return;
@@ -325,6 +340,7 @@ export default function App() {
               <option value="intervals">{t("modeIntervalsShort")}</option>
               <option value="scales">{t("modeScalesShort")}</option>
               <option value="modes">{t("modeModesShort")}</option>
+              <option value="chords">{t("modeChordsShort")}</option>
             </select>
           </label>
 
@@ -471,14 +487,14 @@ export default function App() {
                   <>
                     <strong>{t("correctFeedback")}</strong>
                     <span>
-                      {t("answerIs")} {correctAnswer}.
+                      {t("answerIs")} {displayedAnswer}.
                     </span>
                   </>
                 ) : (
                   <>
                     <strong>{t("incorrectFeedback")}</strong>
                     <span>
-                      {t("correctAnswer")} {correctAnswer}.
+                      {t("answerIs")} {displayedAnswer}.
                     </span>
                   </>
                 )

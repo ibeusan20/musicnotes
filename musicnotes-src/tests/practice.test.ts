@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_SETTINGS } from "../src/domain/music";
 import type { PracticeQuestion } from "../src/domain/exercises";
+import { generatePracticeQuestion } from "../src/domain/exercises";
 import {
   createDefaultProfiles,
   createPracticeState,
@@ -154,5 +155,32 @@ describe("Practice state machine", () => {
     expect(reset.profiles.notes.total.correct).toBe(0);
     expect(reset.profiles.intervals.total.correct).toBe(0);
     expect(reset.session.correct).toBe(0);
+  });
+
+  it("keeps chord statistics separate", () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      practiceMode: "chords" as const,
+    };
+
+    const question = generatePracticeQuestion(settings);
+
+    const state = createPracticeState(
+      "chords",
+      createDefaultProfiles(),
+      null,
+      question,
+    );
+
+    const answered = practiceReducer(state, {
+      type: "submit",
+      correct: true,
+    });
+
+    expect(answered.profiles.chords.total.correct).toBe(1);
+    expect(answered.profiles.notes.total.correct).toBe(0);
+    expect(answered.profiles.intervals.total.correct).toBe(0);
+    expect(answered.profiles.scales.total.correct).toBe(0);
+    expect(answered.profiles.modes.total.correct).toBe(0);
   });
 });

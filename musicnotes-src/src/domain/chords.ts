@@ -221,79 +221,71 @@ export function generateChordQuestion(
         ? ["treble", "bass"]
         : [settings.clef];
 
-  // One group per chord type and inversion.
-  // Choosing a group first keeps all chord types balanced.
-  const groups: ChordQuestion[][] = [];
+  const combinations = allowedTypes(settings).flatMap((definition) =>
+    definition.semitones.map((_, inversion) => ({
+      type: definition.id,
+      inversion,
+    })),
+  );
 
-  for (const definition of allowedTypes(settings)) {
-    for (
-      let inversion = 0;
-      inversion < definition.semitones.length;
-      inversion++
-    ) {
-      const candidates: ChordQuestion[] = [];
+  // Equal probability for each type and inversion.
+  const selected =
+    combinations[Math.floor(Math.random() * combinations.length)];
 
-      for (const clef of clefs) {
-        // Reuse the existing staff ranges and difficulty levels.
-        const positions = createNotePool({
-          ...settings,
-          clef,
-          accidentalLevel: "off",
-        });
+  const candidates: ChordQuestion[] = [];
 
-        const low = diatonicIndex(positions[0]);
-        const high = diatonicIndex(positions[positions.length - 1]);
+  for (const clef of clefs) {
+    const positions = createNotePool({
+      ...settings,
+      clef,
+      accidentalLevel: "off",
+    });
 
-        for (let octave = 1; octave <= 6; octave++) {
-          for (const letter of LETTERS) {
-            for (const accidental of ROOT_ACCIDENTALS) {
-              const root: Question = {
-                letter,
-                octave,
-                clef,
-                accidental,
-              };
+    const low = diatonicIndex(positions[0]);
+    const high = diatonicIndex(positions[positions.length - 1]);
 
-              const question = buildChordQuestion(
-                definition.id,
-                inversion,
-                root,
-              );
+    for (let octave = 1; octave <= 6; octave++) {
+      for (const letter of LETTERS) {
+        for (const accidental of ROOT_ACCIDENTALS) {
+          const root: Question = {
+            letter,
+            octave,
+            clef,
+            accidental,
+          };
 
-              if (!question) continue;
+          const question = buildChordQuestion(
+            selected.type,
+            selected.inversion,
+            root,
+          );
 
-              if (
-                !question.notes.every((note) => {
-                  const index = diatonicIndex(note);
-                  return index >= low && index <= high;
-                })
-              ) {
-                continue;
-              }
+          if (!question) continue;
 
-              if (previous && sameChord(question, previous)) {
-                continue;
-              }
-
-              candidates.push(question);
-            }
+          if (
+            !question.notes.every((note) => {
+              const index = diatonicIndex(note);
+              return index >= low && index <= high;
+            })
+          ) {
+            continue;
           }
-        }
-      }
 
-      if (candidates.length > 0) {
-        groups.push(candidates);
+          if (previous && sameChord(question, previous)) {
+            continue;
+          }
+
+          candidates.push(question);
+        }
       }
     }
   }
 
-  if (groups.length === 0) {
+  if (candidates.length === 0) {
     throw new Error("No chord questions available");
   }
 
-  const group = groups[Math.floor(Math.random() * groups.length)];
-
-  return group[Math.floor(Math.random() * group.length)];
+  return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
 function normalizeChordAnswer(raw: string): string {
