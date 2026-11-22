@@ -11,20 +11,20 @@ import {
 import MusicStaff from "./components/MusicStaff";
 import Scoreboard from "./components/Scoreboard";
 import SettingsPanel from "./components/SettingsPanel";
-import { noteLabel, type Clef, type Settings } from "./domain/music";
-import { generatePracticeQuestion } from "./domain/exercises";
+import type { Clef, Settings } from "./domain/music";
+
 import {
-  checkIntervalAnswer,
-  identifyInterval,
-  INTERVALS,
-} from "./domain/intervals";
-import { checkAnswer } from "./domain/quiz";
+  generatePracticeQuestion,
+  practiceAnswerLabel,
+  checkPracticeAnswer,
+  practiceQuestionClef,
+} from "./domain/exercises";
+
+import { INTERVALS } from "./domain/intervals";
 import { createPracticeState, practiceReducer } from "./domain/practice";
 import { loadStoredData, saveStoredData } from "./lib/storage";
 import { playNote } from "./lib/audio";
-import { checkScaleAnswer, scaleAnswerLabel } from "./domain/scales";
 import ChordSymbol from "./components/ChordSymbol";
-import { checkChordAnswer, identifyChord } from "./domain/chords";
 
 import {
   loadUiPreferences,
@@ -85,27 +85,16 @@ export default function App() {
   const t: Translate = (key) => translations[ui.language][key];
 
   const notationHint =
-  state.mode !== "chords"
-    ? t(copy.hint)
-    : settings.chordLevel === "sevenths"
-      ? t("chordHint")
-      : settings.chordLevel === "all"
-        ? `${t("chordTriadHint")} ${t("chordHint")}`
-        : t("chordTriadHint");
+    state.mode !== "chords"
+      ? t(copy.hint)
+      : settings.chordLevel === "sevenths"
+        ? t("chordHint")
+        : settings.chordLevel === "all"
+          ? `${t("chordTriadHint")} ${t("chordHint")}`
+          : t("chordTriadHint");
 
   const isAnswered = state.phase === "answered";
-
-  const correctAnswer =
-    state.question.kind === "chord"
-      ? (identifyChord(state.question.value) ?? "")
-      : state.question.kind === "scale"
-        ? scaleAnswerLabel(state.question.value)
-        : state.question.kind === "interval"
-          ? (identifyInterval(state.question.value) ?? "")
-          : noteLabel(
-              state.question.value,
-              settings.answerMode === "letter-octave",
-            );
+  const correctAnswer = practiceAnswerLabel(state.question, settings);
 
   const displayedAnswer =
     state.question.kind === "chord" ? (
@@ -119,13 +108,7 @@ export default function App() {
       ? INTERVALS.find((item) => item.code === correctAnswer)
       : undefined;
 
-  const currentClef =
-    state.question.kind === "scale" || state.question.kind === "chord"
-      ? state.question.value.clef
-      : state.question.kind === "interval"
-        ? state.question.value.first.clef
-        : state.question.value.clef;
-
+  const currentClef = practiceQuestionClef(state.question);
   const clefName = t(CLEF_LABELS[currentClef]);
 
   // Play the currently displayed note.
@@ -245,26 +228,15 @@ export default function App() {
       nextQuestion();
       return;
     }
-    const result =
-      state.question.kind === "chord"
-        ? checkChordAnswer(answer, state.question.value)
-        : state.question.kind === "scale"
-          ? checkScaleAnswer(answer, state.question.value, settings)
-          : state.question.kind === "interval"
-            ? checkIntervalAnswer(answer, state.question.value)
-            : checkAnswer(answer, state.question.value, settings.answerMode);
+
+    const result = checkPracticeAnswer(answer, state.question, settings);
 
     if (result === "invalid") {
       setInputError(
-        state.question.kind === "chord"
-          ? "invalidChord"
-          : state.question.kind === "scale"
-            ? "invalidScale"
-            : state.question.kind === "interval"
-              ? "invalidInterval"
-              : settings.answerMode === "letter"
-                ? "invalidLetter"
-                : "invalidOctave",
+        state.question.kind === "note" &&
+          settings.answerMode === "letter-octave"
+          ? "invalidOctave"
+          : copy.invalid,
       );
 
       return;
@@ -492,21 +464,18 @@ export default function App() {
               role="status"
               aria-live="polite">
               {isAnswered ? (
-                state.lastCorrect ? (
-                  <>
-                    <strong>{t("correctFeedback")}</strong>
-                    <span>
-                      {t("answerIs")} {displayedAnswer}.
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <strong>{t("incorrectFeedback")}</strong>
-                    <span>
-                      {t("answerIs")} {displayedAnswer}.
-                    </span>
-                  </>
-                )
+                <>
+                  <strong>
+                    {t(
+                      state.lastCorrect
+                        ? "correctFeedback"
+                        : "incorrectFeedback",
+                    )}
+                  </strong>
+                  <span>
+                    {t("answerIs")} {displayedAnswer}.
+                  </span>
+                </>
               ) : (
                 <span>{t(copy.waiting)}</span>
               )}

@@ -8,6 +8,7 @@ interface PracticeCopy {
   placeholder: TranslationKey;
   waiting: TranslationKey;
   hint: TranslationKey;
+  invalid: TranslationKey;
 }
 
 export const PRACTICE_COPY = {
@@ -18,6 +19,7 @@ export const PRACTICE_COPY = {
     placeholder: "placeholderLetter",
     waiting: "waiting",
     hint: "notationHint",
+    invalid: "invalidLetter",
   },
 
   intervals: {
@@ -27,6 +29,7 @@ export const PRACTICE_COPY = {
     placeholder: "placeholderInterval",
     waiting: "waitingInterval",
     hint: "intervalHint",
+    invalid: "invalidInterval",
   },
 
   scales: {
@@ -36,6 +39,7 @@ export const PRACTICE_COPY = {
     placeholder: "placeholderScale",
     waiting: "waitingScale",
     hint: "scaleHint",
+    invalid: "invalidScale",
   },
 
   modes: {
@@ -45,6 +49,7 @@ export const PRACTICE_COPY = {
     placeholder: "placeholderMode",
     waiting: "waitingMode",
     hint: "modeHint",
+    invalid: "invalidScale",
   },
 
   chords: {
@@ -54,5 +59,6 @@ export const PRACTICE_COPY = {
     placeholder: "placeholderChord",
     waiting: "waitingChord",
     hint: "chordHint",
+    invalid: "invalidChord",
   },
 } satisfies Record<PracticeMode, PracticeCopy>;

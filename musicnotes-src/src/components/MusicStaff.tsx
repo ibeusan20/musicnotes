@@ -8,7 +8,10 @@ import {
   Voice,
 } from "vexflow";
 import type { AccidentalType } from "../domain/music";
-import type { PracticeQuestion } from "../domain/exercises";
+import {
+  practiceQuestionClef,
+  type PracticeQuestion,
+} from "../domain/exercises";
 
 interface Props {
   question: PracticeQuestion;
@@ -34,13 +37,8 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
         : question.kind === "interval"
           ? [question.value.first, question.value.second]
           : question.value.notes;
-
-    const clef =
-      question.kind === "note"
-        ? question.value.clef
-        : question.kind === "interval"
-          ? question.value.first.clef
-          : question.value.clef;
+          
+    const clef = practiceQuestionClef(question);
 
     function draw() {
       if (!container) return;
