@@ -106,7 +106,7 @@ function parseSettings(value: unknown, mode: PracticeMode): Settings {
         : fallback.scaleLevel,
 
     chordLevel:
-      chordLevel === "basic" || chordLevel === "triads" || chordLevel === "all"
+      chordLevel === "basic" || chordLevel === "triads"  || chordLevel === "sevenths" || chordLevel === "all"
         ? chordLevel
         : fallback.chordLevel,
   };

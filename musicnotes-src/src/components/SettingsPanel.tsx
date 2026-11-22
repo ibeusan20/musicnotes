@@ -108,6 +108,7 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
               }>
               <option value="basic">{t("chordBasic")}</option>
               <option value="triads">{t("chordTriads")}</option>
+              <option value="sevenths">{t("chordSevenths")}</option>
               <option value="all">{t("chordAll")}</option>
             </select>
           </label>

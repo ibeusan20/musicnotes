@@ -173,4 +173,22 @@ describe("Lokalno spremanje", () => {
     expect(loaded.profiles.chords.total.correct).toBe(0);
     expect(loaded.profiles.chords.settings.chordLevel).toBe("basic");
   });
+
+  it("persists the seventh chord practice level", () => {
+    vi.stubGlobal("localStorage", createStorage());
+
+    const profiles = createDefaultProfiles();
+    profiles.chords.settings.chordLevel = "sevenths";
+
+    saveStoredData({
+      mode: "chords",
+      profiles,
+      legacyTotal: null,
+    });
+
+    const loaded = loadStoredData();
+
+    expect(loaded.mode).toBe("chords");
+    expect(loaded.profiles.chords.settings.chordLevel).toBe("sevenths");
+  });
 });

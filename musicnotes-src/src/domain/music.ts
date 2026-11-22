@@ -9,7 +9,7 @@ export type PracticeMode = (typeof PRACTICE_MODES)[number];
 export type IntervalLevel = "common" | "all";
 export type AccidentalLevel = "off" | "single" | "double";
 export type ScaleLevel = "basic" | "all";
-export type ChordLevel = "basic" | "triads" | "all";
+export type ChordLevel = "basic" | "triads" | "sevenths" | "all";
 
 export const ACCIDENTALS = [
   "none",

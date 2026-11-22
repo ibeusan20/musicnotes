@@ -18,6 +18,7 @@ import {
 } from "../src/domain/chords";
 
 import { generatePracticeQuestion } from "../src/domain/exercises";
+import { midiNumber } from "../src/domain/audio";
 
 const C4: Question = {
   letter: "C",
@@ -300,6 +301,95 @@ describe("Chord generation", () => {
 
       expect(checkChordAnswer(short + figures, question)).toBe("correct");
       expect(checkChordAnswer(long + figures, question)).toBe("correct");
+    }
+  });
+});
+
+describe("Seventh chords and inversions", () => {
+  const sevenths = CHORD_TYPES.filter(
+    (definition) => definition.semitones.length === 4,
+  );
+
+  it("defines seven seventh chord types", () => {
+    expect(sevenths).toHaveLength(7);
+  });
+
+  it("recognizes all 28 seventh chord forms", () => {
+    const codes = new Set<string>();
+
+    for (const definition of sevenths) {
+      for (let inversion = 0; inversion < 4; inversion++) {
+        const question = buildChordQuestion(definition.id, inversion, C4);
+
+        expect(question).not.toBeNull();
+
+        if (!question) continue;
+
+        const code = chordCode(definition.id, inversion);
+
+        expect(question.notes).toHaveLength(4);
+        expect(identifyChord(question)).toBe(code);
+        expect(checkChordAnswer(code, question)).toBe("correct");
+
+        codes.add(code);
+      }
+    }
+
+    expect(codes.size).toBe(28);
+  });
+
+  it("uses the correct seventh chord structures", () => {
+    const expected = [
+      ["dominant", [0, 4, 7, 10]],
+      ["major-seventh", [0, 4, 7, 11]],
+      ["minor-seventh", [0, 3, 7, 10]],
+      ["minor-major-seventh", [0, 3, 7, 11]],
+      ["half-diminished", [0, 3, 6, 10]],
+      ["diminished-seventh", [0, 3, 6, 9]],
+      ["augmented-seventh", [0, 4, 8, 11]],
+    ] as const;
+
+    for (const [type, intervals] of expected) {
+      const question = buildChordQuestion(type, 0, C4);
+
+      expect(question).not.toBeNull();
+
+      if (!question) continue;
+
+      const rootMidi = midiNumber(question.notes[0]);
+
+      expect(question.notes.map((note) => midiNumber(note) - rootMidi)).toEqual(
+        intervals,
+      );
+    }
+  });
+
+  it("accepts alternative symbols and figured bass", () => {
+    const dominantFirst = buildChordQuestion("dominant", 1, C4)!;
+    const dominantThird = buildChordQuestion("dominant", 3, C4)!;
+    const diminished = buildChordQuestion("diminished-seventh", 0, C4)!;
+    const augmented = buildChordQuestion("augmented-seventh", 0, C4)!;
+
+    expect(checkChordAnswer("D6/5", dominantFirst)).toBe("correct");
+    expect(checkChordAnswer("MD65", dominantFirst)).toBe("correct");
+    expect(checkChordAnswer("D4/2", dominantThird)).toBe("correct");
+    expect(checkChordAnswer("S7", diminished)).toBe("correct");
+    expect(checkChordAnswer("Sm7", diminished)).toBe("correct");
+    expect(checkChordAnswer("P7", augmented)).toBe("correct");
+    expect(checkChordAnswer("Pov7", augmented)).toBe("correct");
+  });
+
+  it("generates only seventh chords in the new level", () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      chordLevel: "sevenths" as const,
+    };
+
+    for (let i = 0; i < 100; i++) {
+      const question = generateChordQuestion(settings);
+
+      expect(question.notes).toHaveLength(4);
+      expect(identifyChord(question)).not.toBeNull();
     }
   });
 });

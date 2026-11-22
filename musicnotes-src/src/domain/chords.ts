@@ -198,15 +198,19 @@ function sameChord(a: ChordQuestion, b: ChordQuestion): boolean {
 
 function allowedTypes(settings: Settings) {
   return CHORD_TYPES.filter((definition) => {
-    if (settings.chordLevel === "basic") {
-      return definition.id === "major" || definition.id === "minor";
-    }
+    switch (settings.chordLevel) {
+      case "basic":
+        return definition.id === "major" || definition.id === "minor";
 
-    if (settings.chordLevel === "triads") {
-      return definition.semitones.length === 3;
-    }
+      case "triads":
+        return definition.semitones.length === 3;
 
-    return true;
+      case "sevenths":
+        return definition.semitones.length === 4;
+
+      case "all":
+        return true;
+    }
   });
 }
 
