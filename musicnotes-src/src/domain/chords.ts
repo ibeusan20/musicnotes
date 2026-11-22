@@ -299,6 +299,11 @@ function normalizeChordAnswer(raw: string): string {
     .replace(/[/⁄]/g, "")
     .toUpperCase();
 
+  // Mali smanjeni: MS i MSm.
+  if (input.startsWith("MSM")) {
+    input = `MS${input.slice(3)}`;
+  }
+
   // Accept descriptive abbreviations for altered triads.
   if (input.startsWith("POV")) {
     input = `P${input.slice(3)}`;

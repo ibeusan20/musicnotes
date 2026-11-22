@@ -149,8 +149,11 @@ const hr = {
   placeholderChord: "Npr. D53, M6, D64 ili VD7",
   invalidChord: "Upiši valjanu oznaku akorda, npr. D53, M6, D64 ili VD7.",
   waitingChord: "Odredi vrstu i obrat akorda pa pritisni Enter.",
+  chordTriadHint:
+    "D = durski, M = molski, S/Sm = smanjeni, P/Pov = povećani. Obrati: 53 = kvintakord, 6 = sekstakord, 64 = kvartsekstakord.",
+
   chordHint:
-    "D/MD = mali durski septakord, VD = veliki durski, MM = mali molski, VM = veliki molski, MS = mali smanjeni, S/Sm = smanjeni, P/Pov = povećani. Obrati: 7, 65, 43 i 2.",
+    "D/MD = mali durski, VD = veliki durski, MM = mali molski, VM = veliki molski, MS/MSm = mali smanjeni, S/Sm = smanjeni, P/Pov = povećani septakord. Obrati: 7, 65, 43 i 2.",
   staffInstructionChord:
     "Prepoznaj vrstu akorda i njegov obrat prema istodobno zapisanim notama.",
 
@@ -309,8 +312,11 @@ const en: Record<keyof typeof hr, string> = {
   placeholderChord: "E.g. D53, M6, D64 or VD7",
   invalidChord: "Enter a valid chord code, e.g. D53, M6, D64 or VD7.",
   waitingChord: "Identify the chord type and inversion, then press Enter.",
+  chordTriadHint:
+    "D = major, M = minor, S/Sm = diminished, P/Pov = augmented. Inversions: 53 = root position, 6 = first inversion, 64 = second inversion.",
+
   chordHint:
-    "D/MD = dominant seventh, VD = major seventh, MM = minor seventh, VM = minor-major seventh, MS = half-diminished, S/Sm = diminished seventh, P/Pov = augmented seventh. Inversions: 7, 65, 43 and 2.",
+    "D/MD = dominant seventh, VD = major seventh, MM = minor seventh, VM = minor-major seventh, MS/MSm = half-diminished, S/Sm = diminished, P/Pov = augmented seventh. Inversions: 7, 65, 43 and 2.",
   staffInstructionChord:
     "Identify the chord quality and inversion from the simultaneously written notes.",
 

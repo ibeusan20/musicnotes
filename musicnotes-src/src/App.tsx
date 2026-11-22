@@ -84,6 +84,15 @@ export default function App() {
 
   const t: Translate = (key) => translations[ui.language][key];
 
+  const notationHint =
+  state.mode !== "chords"
+    ? t(copy.hint)
+    : settings.chordLevel === "sevenths"
+      ? t("chordHint")
+      : settings.chordLevel === "all"
+        ? `${t("chordTriadHint")} ${t("chordHint")}`
+        : t("chordTriadHint");
+
   const isAnswered = state.phase === "answered";
 
   const correctAnswer =
@@ -514,7 +523,7 @@ export default function App() {
 
             <p className="keyboard-hint">{t("keyboardHint")}</p>
 
-            <p className="notation-hint">{t(copy.hint)}</p>
+            <p className="notation-hint">{notationHint}</p>
           </section>
 
           <div className="sidebar">

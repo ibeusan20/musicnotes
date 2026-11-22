@@ -193,6 +193,22 @@ describe("Chord answer validation", () => {
     expect(checkChordAnswer("D99", major)).toBe("invalid");
     expect(checkChordAnswer("", major)).toBe("invalid");
   });
+
+  it("accepts MS and MSm for all half-diminished inversions", () => {
+    for (let inversion = 0; inversion < 4; inversion++) {
+      const question = buildChordQuestion("half-diminished", inversion, C4);
+
+      expect(question).not.toBeNull();
+      if (!question) continue;
+
+      const short = chordCode("half-diminished", inversion);
+      const long = `MSm${short.slice(2)}`;
+
+      expect(checkChordAnswer(short, question)).toBe("correct");
+      expect(checkChordAnswer(long, question)).toBe("correct");
+      expect(checkChordAnswer(long.toLowerCase(), question)).toBe("correct");
+    }
+  });
 });
 
 describe("Chord generation", () => {
