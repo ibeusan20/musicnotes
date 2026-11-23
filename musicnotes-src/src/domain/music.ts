@@ -60,6 +60,18 @@ export const CLEF_NAMES: Record<Clef, string> = {
 
 export const CLEFS: readonly Clef[] = ["treble", "bass", "alto", "tenor"];
 
+export function selectedClefs(selection: ClefSelection): readonly Clef[] {
+  if (selection === "random") return CLEFS;
+  if (selection === "treble-bass") return ["treble", "bass"];
+  return [selection];
+}
+
+export function diatonicIndex(
+  note: Pick<Question, "letter" | "octave">,
+): number {
+  return note.octave * LETTERS.length + LETTERS.indexOf(note.letter);
+}
+
 // Diatonic index: C0 = 0.
 // Every octave has seven positions.
 const BOTTOM_LINE: Record<Clef, number> = {
@@ -92,15 +104,8 @@ export function indexToPitch(
 }
 
 export function createNotePool(settings: Settings): Question[] {
-  const clefs: readonly Clef[] =
-    settings.clef === "random"
-      ? CLEFS
-      : settings.clef === "treble-bass"
-        ? ["treble", "bass"]
-        : [settings.clef];
-
+  const clefs = selectedClefs(settings.clef);
   const extra = EXTRA_STEPS[settings.difficulty];
-
   const accidentals: readonly AccidentalType[] =
     ACCIDENTALS_BY_LEVEL[settings.accidentalLevel];
 

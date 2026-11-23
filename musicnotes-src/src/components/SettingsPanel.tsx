@@ -10,7 +10,6 @@ interface Props {
 export default function SettingsPanel({ settings, onChange, t }: Props) {
   const isIntervalMode = settings.practiceMode === "intervals";
   const isScaleMode = settings.practiceMode === "scales";
-  const isModeMode = settings.practiceMode === "modes";
   const isChordMode = settings.practiceMode === "chords";
 
   return (
@@ -59,29 +58,29 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
           </select>
         </label>
 
-        {!isScaleMode && !isModeMode && (
-          <label className="field">
-            <span>{t("difficulty")}</span>
+        {settings.practiceMode !== "scales" &&
+          settings.practiceMode !== "modes" && (
+            <label className="field">
+              <span>{t("difficulty")}</span>
 
-            <select
-              value={settings.difficulty}
-              onChange={(event) =>
-                onChange({
-                  ...settings,
-                  difficulty: event.target.value as Settings["difficulty"],
-                })
-              }>
-              <option value="basic">{t("difficultyBasic")}</option>
-              <option value="extended">{t("difficultyExtended")}</option>
-              <option value="advanced">{t("difficultyAdvanced")}</option>
-            </select>
-          </label>
-        )}
+              <select
+                value={settings.difficulty}
+                onChange={(event) =>
+                  onChange({
+                    ...settings,
+                    difficulty: event.target.value as Settings["difficulty"],
+                  })
+                }>
+                <option value="basic">{t("difficultyBasic")}</option>
+                <option value="extended">{t("difficultyExtended")}</option>
+                <option value="advanced">{t("difficultyAdvanced")}</option>
+              </select>
+            </label>
+          )}
 
-        {isIntervalMode ? (
+        {isIntervalMode && (
           <label className="field">
             <span>{t("intervalLevel")}</span>
-
             <select
               value={settings.intervalLevel}
               onChange={(event) =>
@@ -95,7 +94,9 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
               <option value="all">{t("intervalAll")}</option>
             </select>
           </label>
-        ) : isChordMode ? (
+        )}
+
+        {isChordMode && (
           <label className="field">
             <span>{t("chordLevel")}</span>
             <select
@@ -112,7 +113,9 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
               <option value="all">{t("chordAll")}</option>
             </select>
           </label>
-        ) : isScaleMode ? (
+        )}
+
+        {isScaleMode && (
           <label className="field">
             <span>{t("scaleLevel")}</span>
             <select
@@ -127,11 +130,12 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
               <option value="all">{t("scaleAll")}</option>
             </select>
           </label>
-        ) : isModeMode ? null : (
+        )}
+
+        {settings.practiceMode === "notes" && (
           <>
             <label className="field">
               <span>{t("answerMode")}</span>
-
               <select
                 value={settings.answerMode}
                 onChange={(event) =>
@@ -147,7 +151,6 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
 
             <label className="field">
               <span>{t("accidentals")}</span>
-
               <select
                 value={settings.accidentalLevel}
                 onChange={(event) =>

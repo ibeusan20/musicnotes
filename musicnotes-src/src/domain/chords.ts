@@ -1,5 +1,4 @@
 import {
-  CLEFS,
   LETTERS,
   createNotePool,
   indexToPitch,
@@ -8,6 +7,8 @@ import {
   type Clef,
   type Question,
   type Settings,
+  diatonicIndex,
+  selectedClefs,
 } from "./music";
 
 import { midiNumber } from "./audio";
@@ -55,10 +56,6 @@ const ALTERATIONS = new Map<number, AccidentalType>([
   [2, "double-sharp"],
 ]);
 
-function diatonicIndex(note: Question): number {
-  return note.octave * 7 + LETTERS.indexOf(note.letter);
-}
-
 function chordDefinition(type: ChordType) {
   const definition = CHORD_TYPES.find((item) => item.id === type);
 
@@ -81,6 +78,14 @@ export function chordCode(type: ChordType, inversion: number): string {
 
   return `${definition.prefix}${figures[inversion]}`;
 }
+
+const VALID_CHORD_CODES: ReadonlySet<string> = new Set(
+  CHORD_TYPES.flatMap((definition) =>
+    definition.semitones.map((_, inversion) =>
+      chordCode(definition.id, inversion),
+    ),
+  ),
+);
 
 export function buildChordQuestion(
   type: ChordType,
@@ -218,13 +223,7 @@ export function generateChordQuestion(
   settings: Settings,
   previous?: ChordQuestion,
 ): ChordQuestion {
-  const clefs: readonly Clef[] =
-    settings.clef === "random"
-      ? CLEFS
-      : settings.clef === "treble-bass"
-        ? ["treble", "bass"]
-        : [settings.clef];
-
+  const clefs = selectedClefs(settings.clef);
   const combinations = allowedTypes(settings).flatMap((definition) =>
     definition.semitones.map((_, inversion) => ({
       type: definition.id,
@@ -329,15 +328,9 @@ export function checkChordAnswer(
 ): AnswerResult {
   const answer = normalizeChordAnswer(raw);
 
-  const knownCodes = new Set(
-    CHORD_TYPES.flatMap((definition) =>
-      definition.semitones.map((_, inversion) =>
-        chordCode(definition.id, inversion),
-      ),
-    ),
-  );
-
-  if (!knownCodes.has(answer)) return "invalid";
+  if (!VALID_CHORD_CODES.has(answer)) {
+    return "invalid";
+  }
 
   return identifyChord(question) === answer ? "correct" : "incorrect";
 }

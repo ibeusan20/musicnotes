@@ -1,8 +1,8 @@
 import {
-  CLEFS,
   LETTERS,
   indexToPitch,
   noteName,
+  selectedClefs,
   type AccidentalType,
   type Clef,
   type Letter,
@@ -196,13 +196,7 @@ export function generateScaleQuestion(
   settings: Settings,
   previous?: ScaleQuestion,
 ): ScaleQuestion {
-  const clefs: readonly Clef[] =
-    settings.clef === "random"
-      ? CLEFS
-      : settings.clef === "treble-bass"
-        ? ["treble", "bass"]
-        : [settings.clef];
-
+  const clefs = selectedClefs(settings.clef);
   const pool = MAJOR_KEYS.flatMap((keySignature) =>
     allowedTypes(settings).flatMap((type) =>
       clefs.map((clef) => buildScaleQuestion(keySignature, type, clef)),
@@ -279,6 +273,27 @@ function aliases(
   return tonics.map((name) => `${name}${NAMES[question.type]}`);
 }
 
+function createValidAnswers(
+  types: readonly ScaleType[],
+  level: Settings["scaleLevel"],
+): ReadonlySet<string> {
+  return new Set(
+    MAJOR_KEYS.flatMap((key) =>
+      types.flatMap((type) =>
+        aliases(buildScaleQuestion(key, type, "treble"), level),
+      ),
+    ),
+  );
+}
+
+const VALID_ANSWERS = {
+  basic: createValidAnswers(["major", "minor-natural"], "basic"),
+
+  all: createValidAnswers(SCALE_TYPES, "all"),
+
+  modes: createValidAnswers(MODE_TYPES, "all"),
+};
+
 export function checkScaleAnswer(
   raw: string,
   question: ScaleQuestion,
@@ -286,17 +301,14 @@ export function checkScaleAnswer(
 ): AnswerResult {
   const input = normalize(raw);
 
-  // A valid answer for another scale is incorrect,
-  // not a formatting error.
-  const valid = new Set(
-    MAJOR_KEYS.flatMap((key) =>
-      allowedTypes(settings).flatMap((type) =>
-        aliases(buildScaleQuestion(key, type, "treble"), settings.scaleLevel),
-      ),
-    ),
-  );
+  const valid =
+    settings.practiceMode === "modes"
+      ? VALID_ANSWERS.modes
+      : VALID_ANSWERS[settings.scaleLevel];
 
-  if (!valid.has(input)) return "invalid";
+  if (!valid.has(input)) {
+    return "invalid";
+  }
 
   return aliases(question, settings.scaleLevel).includes(input)
     ? "correct"

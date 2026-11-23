@@ -8,7 +8,10 @@ import {
   Voice,
 } from "vexflow";
 import type { AccidentalType } from "../domain/music";
-import type { PracticeQuestion } from "../domain/exercises";
+import {
+  practiceQuestionClef,
+  type PracticeQuestion,
+} from "../domain/exercises";
 
 interface Props {
   question: PracticeQuestion;
@@ -17,6 +20,14 @@ interface Props {
 
 const STAFF_HEIGHT = 185;
 const STAFF_SCALE = 1.3;
+
+const ACCIDENTAL_SYMBOLS: Record<Exclude<AccidentalType, "none">, string> = {
+  natural: "n",
+  sharp: "#",
+  flat: "b",
+  "double-sharp": "##",
+  "double-flat": "bb",
+};
 
 export default function MusicStaff({ question, ariaLabel }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -35,12 +46,7 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
           ? [question.value.first, question.value.second]
           : question.value.notes;
 
-    const clef =
-      question.kind === "note"
-        ? question.value.clef
-        : question.kind === "interval"
-          ? question.value.first.clef
-          : question.value.clef;
+    const clef = practiceQuestionClef(question);
 
     function draw() {
       if (!container) return;
@@ -87,14 +93,6 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
 
       // VexFlow uses B, but we display H to the user (croatian notation).
 
-      const symbols: Record<Exclude<AccidentalType, "none">, string> = {
-        natural: "n",
-        sharp: "#",
-        flat: "b",
-        "double-sharp": "##",
-        "double-flat": "bb",
-      };
-
       const noteGroups = isChord ? [notes] : notes.map((note) => [note]);
 
       const staveNotes = noteGroups.map((group) => {
@@ -110,7 +108,10 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
 
         group.forEach((source, index) => {
           if (source.accidental !== "none") {
-            note.addModifier(new Accidental(symbols[source.accidental]), index);
+            note.addModifier(
+              new Accidental(ACCIDENTAL_SYMBOLS[source.accidental]),
+              index,
+            );
           }
         });
 

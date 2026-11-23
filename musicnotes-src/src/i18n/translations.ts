@@ -1,8 +1,5 @@
 const hr = {
-  documentTitle: "MusicNotes | Vježbanje nota",
   back: "← Natrag",
-  subtitle: "Vježbaj prepoznavanje nota, intervala, ljestvica i modusa.",
-  appTag: "Vježbanje nota",
 
   language: "Jezik",
   appearance: "Tema",
@@ -144,7 +141,6 @@ const hr = {
   chordLevel: "Skup akorada",
   chordBasic: "Durski i molski (6 oblika)",
   chordTriads: "Svi kvintakordi (12 oblika)",
-  chordAll: "I septakordi (40 oblika)",
 
   placeholderChord: "Npr. D53, M6, D64 ili VD7",
   invalidChord: "Upiši valjanu oznaku akorda, npr. D53, M6, D64 ili VD7.",
@@ -158,13 +154,16 @@ const hr = {
     "Prepoznaj vrstu akorda i njegov obrat prema istodobno zapisanim notama.",
 
   chordSevenths: "Samo septakordi (28 oblika)",
+
+  documentTitle: "MusicNotes | Vježbanje glazbene teorije",
+  subtitle:
+    "Vježbaj prepoznavanje nota, intervala, ljestvica, modusa i akorada.",
+  appTag: "Vježbanje glazbene teorije",
+  chordAll: "Svi akordi (40 oblika)",
 } as const;
 
 const en: Record<keyof typeof hr, string> = {
-  documentTitle: "MusicNotes | Note trainer",
   back: "← Back",
-  subtitle: "Practise recognizing notes, intervals, scales and modes.",
-  appTag: "Music note trainer",
 
   language: "Language",
   appearance: "Theme",
@@ -307,7 +306,6 @@ const en: Record<keyof typeof hr, string> = {
   chordLevel: "Chord set",
   chordBasic: "Major and minor (6 forms)",
   chordTriads: "All triads (12 forms)",
-  chordAll: "Including seventh chords (40 forms)",
 
   placeholderChord: "E.g. D53, M6, D64 or VD7",
   invalidChord: "Enter a valid chord code, e.g. D53, M6, D64 or VD7.",
@@ -321,6 +319,11 @@ const en: Record<keyof typeof hr, string> = {
     "Identify the chord quality and inversion from the simultaneously written notes.",
 
   chordSevenths: "Seventh chords only (28 forms)",
+
+  documentTitle: "MusicNotes | Music Theory Practice",
+  subtitle: "Practise recognizing notes, intervals, scales, modes and chords.",
+  appTag: "Music theory practice",
+  chordAll: "All chords (40 forms)",
 };
 
 export type Language = "hr" | "en";
