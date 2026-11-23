@@ -9,6 +9,7 @@ built with React, TypeScript, Vite and VexFlow.
 - Note recognition in treble, bass, alto and tenor clefs
 - Written interval recognition
 - Major and minor scale recognition
+- Chord recognition: major, minor, diminished and augmented triads, seven seventh-chord types, and their inversions (40 forms)
 - Diatonic mode recognition
 - Independent settings and statistics for each practice mode
 - Croatian and English interface
