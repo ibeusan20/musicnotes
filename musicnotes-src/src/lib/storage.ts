@@ -46,69 +46,55 @@ function parseTotal(value: unknown): TotalStats {
 }
 
 function parseSettings(value: unknown, mode: PracticeMode): Settings {
-  const fallback = {
+  const fallback: Settings = {
     ...DEFAULT_SETTINGS,
     practiceMode: mode,
   };
 
-  if (!isRecord(value)) return fallback;
-
-  const {
-    clef,
-    difficulty,
-    answerMode,
-    accidentalLevel,
-    intervalLevel,
-    scaleLevel,
-    chordLevel,
-  } = value;
+  if (!isRecord(value)) {
+    return fallback;
+  }
 
   return {
     practiceMode: mode,
 
-    clef:
-      clef === "treble" ||
-      clef === "bass" ||
-      clef === "alto" ||
-      clef === "tenor" ||
-      clef === "treble-bass" ||
-      clef === "random"
-        ? clef
-        : fallback.clef,
+    clef: parseOption(value.clef, VALID_SETTINGS.clef, fallback.clef),
 
-    difficulty:
-      difficulty === "basic" ||
-      difficulty === "extended" ||
-      difficulty === "advanced"
-        ? difficulty
-        : fallback.difficulty,
+    difficulty: parseOption(
+      value.difficulty,
+      VALID_SETTINGS.difficulty,
+      fallback.difficulty,
+    ),
 
-    answerMode:
-      answerMode === "letter" || answerMode === "letter-octave"
-        ? answerMode
-        : fallback.answerMode,
+    answerMode: parseOption(
+      value.answerMode,
+      VALID_SETTINGS.answerMode,
+      fallback.answerMode,
+    ),
 
-    accidentalLevel:
-      accidentalLevel === "off" ||
-      accidentalLevel === "single" ||
-      accidentalLevel === "double"
-        ? accidentalLevel
-        : fallback.accidentalLevel,
+    accidentalLevel: parseOption(
+      value.accidentalLevel,
+      VALID_SETTINGS.accidentalLevel,
+      fallback.accidentalLevel,
+    ),
 
-    intervalLevel:
-      intervalLevel === "common" || intervalLevel === "all"
-        ? intervalLevel
-        : fallback.intervalLevel,
+    intervalLevel: parseOption(
+      value.intervalLevel,
+      VALID_SETTINGS.intervalLevel,
+      fallback.intervalLevel,
+    ),
 
-    scaleLevel:
-      scaleLevel === "basic" || scaleLevel === "all"
-        ? scaleLevel
-        : fallback.scaleLevel,
+    scaleLevel: parseOption(
+      value.scaleLevel,
+      VALID_SETTINGS.scaleLevel,
+      fallback.scaleLevel,
+    ),
 
-    chordLevel:
-      chordLevel === "basic" || chordLevel === "triads"  || chordLevel === "sevenths" || chordLevel === "all"
-        ? chordLevel
-        : fallback.chordLevel,
+    chordLevel: parseOption(
+      value.chordLevel,
+      VALID_SETTINGS.chordLevel,
+      fallback.chordLevel,
+    ),
   };
 }
 
@@ -190,6 +176,29 @@ export function loadStoredData(): StoredData {
   } catch {
     return fallback;
   }
+}
+
+const VALID_SETTINGS = {
+  clef: ["treble", "bass", "alto", "tenor", "treble-bass", "random"],
+
+  difficulty: ["basic", "extended", "advanced"],
+  answerMode: ["letter", "letter-octave"],
+  accidentalLevel: ["off", "single", "double"],
+  intervalLevel: ["common", "all"],
+  scaleLevel: ["basic", "all"],
+  chordLevel: ["basic", "triads", "sevenths", "all"],
+} as const satisfies {
+  [K in Exclude<keyof Settings, "practiceMode">]: readonly Settings[K][];
+};
+
+function parseOption<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  fallback: T,
+): T {
+  return typeof value === "string" && allowed.some((option) => option === value)
+    ? (value as T)
+    : fallback;
 }
 
 export function saveStoredData(data: StoredData): void {

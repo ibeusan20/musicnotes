@@ -79,6 +79,14 @@ export function chordCode(type: ChordType, inversion: number): string {
   return `${definition.prefix}${figures[inversion]}`;
 }
 
+const VALID_CHORD_CODES: ReadonlySet<string> = new Set(
+  CHORD_TYPES.flatMap((definition) =>
+    definition.semitones.map((_, inversion) =>
+      chordCode(definition.id, inversion),
+    ),
+  ),
+);
+
 export function buildChordQuestion(
   type: ChordType,
   inversion: number,
@@ -320,15 +328,9 @@ export function checkChordAnswer(
 ): AnswerResult {
   const answer = normalizeChordAnswer(raw);
 
-  const knownCodes = new Set(
-    CHORD_TYPES.flatMap((definition) =>
-      definition.semitones.map((_, inversion) =>
-        chordCode(definition.id, inversion),
-      ),
-    ),
-  );
-
-  if (!knownCodes.has(answer)) return "invalid";
+  if (!VALID_CHORD_CODES.has(answer)) {
+    return "invalid";
+  }
 
   return identifyChord(question) === answer ? "correct" : "incorrect";
 }

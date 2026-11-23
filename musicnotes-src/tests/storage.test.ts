@@ -191,4 +191,35 @@ describe("Lokalno spremanje", () => {
     expect(loaded.mode).toBe("chords");
     expect(loaded.profiles.chords.settings.chordLevel).toBe("sevenths");
   });
+
+  it("restores invalid settings to their defaults", () => {
+    const storage = createStorage();
+    vi.stubGlobal("localStorage", storage);
+
+    const profiles = createDefaultProfiles();
+
+    const saved = JSON.parse(
+      JSON.stringify({
+        version: 2,
+        mode: "chords",
+        profiles,
+        legacyTotal: null,
+      }),
+    );
+
+    saved.profiles.chords.settings.clef = "invalid-clef";
+    saved.profiles.chords.settings.chordLevel = "unknown";
+    saved.profiles.chords.total.correct = 17;
+
+    storage.setItem("musicnotes.v2", JSON.stringify(saved));
+
+    const loaded = loadStoredData();
+
+    expect(loaded.mode).toBe("chords");
+    expect(loaded.profiles.chords.settings.clef).toBe("treble");
+    expect(loaded.profiles.chords.settings.chordLevel).toBe("basic");
+
+    // Invalid settings must not delete valid statistics.
+    expect(loaded.profiles.chords.total.correct).toBe(17);
+  });
 });
