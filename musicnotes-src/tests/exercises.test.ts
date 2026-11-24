@@ -39,7 +39,9 @@ describe("Practice exercise routing", () => {
             ? "interval"
             : mode === "chords"
               ? "chord"
-              : "scale";
+              : mode === "keys"
+                ? "key-signature"
+                : "scale";
 
       expect(question.kind).toBe(expectedKind);
     }
@@ -120,5 +122,30 @@ describe("Practice exercise routing", () => {
     );
 
     expect(practiceQuestionClef(question)).toBe("treble");
+  });
+
+  it("routes key signature questions correctly", () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      practiceMode: "keys" as const,
+      keyLevel: "major" as const,
+    };
+
+    const question: PracticeQuestion = {
+      kind: "key-signature",
+      value: {
+        keySignature: "G",
+        quality: "major",
+        clef: "bass",
+      },
+    };
+
+    expect(practiceAnswerLabel(question, settings)).toBe("G-dur");
+
+    expect(checkPracticeAnswer("G dur", question, settings)).toBe("correct");
+
+    expect(checkPracticeAnswer("e mol", question, settings)).toBe("incorrect");
+
+    expect(practiceQuestionClef(question)).toBe("bass");
   });
 });

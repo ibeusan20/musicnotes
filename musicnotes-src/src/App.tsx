@@ -23,7 +23,8 @@ import {
 import { INTERVALS } from "./domain/intervals";
 import { createPracticeState, practiceReducer } from "./domain/practice";
 import { loadStoredData, saveStoredData } from "./lib/storage";
-import { playNote } from "./lib/audio";
+import { playEvents, stopPlayback } from "./lib/audio";
+import { practicePlaybackEvents } from "./domain/playback";
 import ChordSymbol from "./components/ChordSymbol";
 
 import {
@@ -76,6 +77,7 @@ export default function App() {
     | "invalidInterval"
     | "invalidScale"
     | "invalidChord"
+    | "invalidKey"
     | null
   >(null);
 
@@ -96,6 +98,15 @@ export default function App() {
   const isAnswered = state.phase === "answered";
   const correctAnswer = practiceAnswerLabel(state.question, settings);
 
+  const questionTitle =
+    state.question.kind === "key-signature"
+      ? t(
+          state.question.value.quality === "major"
+            ? "keyQuestionMajor"
+            : "keyQuestionMinor",
+        )
+      : t(copy.question);
+
   const displayedAnswer =
     state.question.kind === "chord" ? (
       <ChordSymbol code={correctAnswer} />
@@ -110,14 +121,19 @@ export default function App() {
 
   const currentClef = practiceQuestionClef(state.question);
   const clefName = t(CLEF_LABELS[currentClef]);
+  const canPlay =
+    state.question.kind === "note" ||
+    state.question.kind === "interval" ||
+    state.question.kind === "chord" ||
+    state.question.kind === "scale";
 
-  // Play the currently displayed note.
-  const playCurrentNote = useCallback(() => {
-    if (state.question.kind !== "note") return;
+  const playCurrentQuestion = useCallback(() => {
+    const events = practicePlaybackEvents(state.question);
+    if (events.length === 0) return;
 
     setAudioError(false);
 
-    void playNote(state.question.value).catch(() => {
+    void playEvents(events).catch(() => {
       setAudioError(true);
     });
   }, [state.question]);
@@ -169,9 +185,10 @@ export default function App() {
     }
   }, [state.question]);
 
-  // Press P to play the current note.
+  // P plays the exercise when the user is not typing.
   useEffect(() => {
-    if (state.question.kind !== "note") return;
+    if (!canPlay) return;
+
     function handleKeyDown(event: KeyboardEvent) {
       if (
         event.key.toLowerCase() !== "p" ||
@@ -188,13 +205,13 @@ export default function App() {
       if (
         target instanceof HTMLElement &&
         (target.isContentEditable ||
-          target.matches("textarea, select, input:not(#note-answer)"))
+          target.closest('input, textarea, select, [contenteditable="true"]'))
       ) {
         return;
       }
 
       event.preventDefault();
-      playCurrentNote();
+      playCurrentQuestion();
     }
 
     window.addEventListener("keydown", handleKeyDown);
@@ -202,9 +219,15 @@ export default function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [playCurrentNote, state.question.kind]);
+  }, [canPlay, playCurrentQuestion]);
+
+  // Stop audio when the component unmounts.
+  useEffect(() => {
+    return () => stopPlayback();
+  }, []);
 
   function clearInput() {
+    stopPlayback();
     setAnswer("");
     setInputError(null);
     setAudioError(false);
@@ -232,14 +255,23 @@ export default function App() {
     const result = checkPracticeAnswer(answer, state.question, settings);
 
     if (result === "invalid") {
-      setInputError(
-        state.question.kind === "note" &&
-          settings.answerMode === "letter-octave"
-          ? "invalidOctave"
-          : copy.invalid,
-      );
+      canPlay && (
+        <div className="audio-controls">
+          <button
+            type="button"
+            className="button secondary"
+            onClick={playCurrentQuestion}
+            aria-keyshortcuts="P">
+            {t("play")}
+          </button>
 
-      return;
+          {audioError && (
+            <p className="input-error" role="alert">
+              {t("audioError")}
+            </p>
+          )}
+        </div>
+      );
     }
 
     dispatch({
@@ -322,6 +354,7 @@ export default function App() {
               <option value="scales">{t("modeScalesShort")}</option>
               <option value="modes">{t("modeModesShort")}</option>
               <option value="chords">{t("modeChordsShort")}</option>
+              <option value="keys">{t("modeKeysShort")}</option>
             </select>
           </label>
 
@@ -366,7 +399,7 @@ export default function App() {
             <div className="section-heading">
               <div>
                 <span className="eyebrow">{t(copy.heading)}</span>
-                <h2>{t(copy.question)}</h2>
+                <h2>{questionTitle}</h2>
               </div>
 
               <span className="clef-tag">{clefName}</span>
@@ -379,12 +412,12 @@ export default function App() {
               }
             />
 
-            {state.question.kind === "note" && (
+            {canPlay && (
               <div className="audio-controls">
                 <button
                   type="button"
                   className="button secondary"
-                  onClick={playCurrentNote}
+                  onClick={playCurrentQuestion}
                   aria-keyshortcuts="P">
                   {t("play")}
                 </button>
@@ -490,7 +523,9 @@ export default function App() {
               </p>
             )}
 
-            <p className="keyboard-hint">{t("keyboardHint")}</p>
+            <p className="keyboard-hint">
+              {t(state.mode === "keys" ? "keyboardHintKeys" : "keyboardHint")}
+            </p>
 
             <p className="notation-hint">{notationHint}</p>
           </section>

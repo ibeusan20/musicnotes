@@ -18,7 +18,10 @@ const hr = {
   staffDescription: "Notno crtovlje. Ključ:",
   staffInstruction: "Prepoznaj notu.",
 
-  play: "▶ Reproduciraj notu (P)",
+  play: "▶ Reproduciraj (P)",
+  keyboardHint:
+    "Enter — provjeri odgovor ili sljedeće pitanje. P — reproduciraj izvan polja za unos.",
+
   audioError: "Nije moguće reproducirati zvuk.",
 
   yourAnswer: "Tvoj odgovor",
@@ -35,7 +38,6 @@ const hr = {
   answerIs: "Odgovor je",
   correctAnswer: "Točan odgovor:",
   waiting: "Upiši naziv note i pritisni Enter.",
-  keyboardHint: "Enter — provjeri odgovor ili prijeđi na sljedeću notu.",
   notationHint: "Nazivi nota: hrvatski sustav (H, cis, es, hes...).",
 
   stats: "Statistika",
@@ -157,9 +159,33 @@ const hr = {
 
   documentTitle: "MusicNotes | Vježbanje glazbene teorije",
   subtitle:
-    "Vježbaj prepoznavanje nota, intervala, ljestvica, modusa i akorada.",
+    "Vježbaj prepoznavanje nota, intervala, ljestvica, modusa, akorada i tonaliteta.",
   appTag: "Vježbanje glazbene teorije",
   chordAll: "Svi akordi (40 oblika)",
+
+  modeKeys: "Key signature recognition",
+  modeKeysShort: "Keys",
+
+  keyPracticeLabel: "IDENTIFY THE KEY",
+  keyQuestion: "Which key is this?",
+  keyQuestionMajor: "Which major key is this?",
+  keyQuestionMinor: "Which minor key is this?",
+
+  keyLevel: "Key type",
+  keyMajor: "Major only (15 keys)",
+  keyMinor: "Minor only (15 keys)",
+  keyMixed: "Major and minor (30 keys)",
+
+  placeholderKey: "E.g. A-dur or fis-mol",
+  invalidKey: "Enter a valid major or minor key name.",
+  waitingKey: "Identify the key signature and press Enter.",
+  keyHint:
+    "Relative major and minor keys share the same key signature. Answer the key type requested by the question.",
+  staffInstructionKey:
+    "Only the clef and key signature are shown. Identify the requested key.",
+
+  keyboardHintKeys:
+    "Enter — check your answer or continue to the next question.",
 } as const;
 
 const en: Record<keyof typeof hr, string> = {
@@ -182,7 +208,10 @@ const en: Record<keyof typeof hr, string> = {
   staffDescription: "Music staff. Clef:",
   staffInstruction: "Identify the note.",
 
-  play: "▶ Play note (P)",
+  play: "▶ Play (P)",
+  keyboardHint:
+    "Enter — check or continue. P — play when outside the answer field.",
+
   audioError: "Unable to play the note.",
 
   yourAnswer: "Your answer",
@@ -199,7 +228,6 @@ const en: Record<keyof typeof hr, string> = {
   answerIs: "The answer is",
   correctAnswer: "Correct answer:",
   waiting: "Type the note name and press Enter.",
-  keyboardHint: "Enter — check your answer or move to the next note.",
   notationHint: "Note names use Croatian notation (H, cis, es, hes...).",
 
   stats: "Statistics",
@@ -321,9 +349,35 @@ const en: Record<keyof typeof hr, string> = {
   chordSevenths: "Seventh chords only (28 forms)",
 
   documentTitle: "MusicNotes | Music Theory Practice",
-  subtitle: "Practise recognizing notes, intervals, scales, modes and chords.",
+  subtitle:
+    "Practise recognizing notes, intervals, scales, modes, chords and keys.",
   appTag: "Music theory practice",
   chordAll: "All chords (40 forms)",
+
+  modeKeys: "Prepoznavanje tonaliteta",
+  modeKeysShort: "Tonaliteti",
+
+  keyPracticeLabel: "PREPOZNAJ TONALITET",
+  keyQuestion: "Koji je ovo tonalitet?",
+  keyQuestionMajor: "Koji je durski tonalitet?",
+  keyQuestionMinor: "Koji je molski tonalitet?",
+
+  keyLevel: "Vrsta tonaliteta",
+  keyMajor: "Samo dur (15 tonaliteta)",
+  keyMinor: "Samo mol (15 tonaliteta)",
+  keyMixed: "Dur i mol (30 tonaliteta)",
+
+  placeholderKey: "Npr. A-dur ili fis-mol",
+  invalidKey: "Upiši valjan durski ili molski tonalitet.",
+  waitingKey: "Odredi tonalitet prema predznacima pa pritisni Enter.",
+  keyHint:
+    "Isti predznaci pripadaju paralelnom duru i molu. Odgovori za vrstu tonaliteta koju pitanje traži.",
+  staffInstructionKey:
+    "Na crtovlju su samo glazbeni ključ i predznaci. Prepoznaj traženi tonalitet.",
+
+  keyboardHintKeys: "Enter — provjeri odgovor ili prijeđi na sljedeće pitanje.",
+
+  
 };
 
 export type Language = "hr" | "en";

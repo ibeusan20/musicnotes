@@ -11,6 +11,7 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
   const isIntervalMode = settings.practiceMode === "intervals";
   const isScaleMode = settings.practiceMode === "scales";
   const isChordMode = settings.practiceMode === "chords";
+  const isKeyMode = settings.practiceMode === "keys";
 
   return (
     <section className="panel">
@@ -35,6 +36,7 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
             <option value="scales">{t("modeScales")}</option>
             <option value="modes">{t("modeModes")}</option>
             <option value="chords">{t("modeChords")}</option>
+            <option value="keys">{t("modeKeys")}</option>
           </select>
         </label>
 
@@ -59,7 +61,8 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
         </label>
 
         {settings.practiceMode !== "scales" &&
-          settings.practiceMode !== "modes" && (
+          settings.practiceMode !== "modes" &&
+          settings.practiceMode !== "keys" && (
             <label className="field">
               <span>{t("difficulty")}</span>
 
@@ -111,6 +114,24 @@ export default function SettingsPanel({ settings, onChange, t }: Props) {
               <option value="triads">{t("chordTriads")}</option>
               <option value="sevenths">{t("chordSevenths")}</option>
               <option value="all">{t("chordAll")}</option>
+            </select>
+          </label>
+        )}
+
+        {isKeyMode && (
+          <label className="field">
+            <span>{t("keyLevel")}</span>
+            <select
+              value={settings.keyLevel}
+              onChange={(event) =>
+                onChange({
+                  ...settings,
+                  keyLevel: event.target.value as Settings["keyLevel"],
+                })
+              }>
+              <option value="major">{t("keyMajor")}</option>
+              <option value="minor">{t("keyMinor")}</option>
+              <option value="mixed">{t("keyMixed")}</option>
             </select>
           </label>
         )}

@@ -61,4 +61,14 @@ export const PRACTICE_COPY = {
     hint: "chordHint",
     invalid: "invalidChord",
   },
+
+  keys: {
+    heading: "keyPracticeLabel",
+    question: "keyQuestion",
+    instruction: "staffInstructionKey",
+    placeholder: "placeholderKey",
+    waiting: "waitingKey",
+    hint: "keyHint",
+    invalid: "invalidKey",
+  },
 } satisfies Record<PracticeMode, PracticeCopy>;
