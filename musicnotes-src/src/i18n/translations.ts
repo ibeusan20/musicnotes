@@ -18,9 +18,9 @@ const hr = {
   staffDescription: "Notno crtovlje. Ključ:",
   staffInstruction: "Prepoznaj notu.",
 
-  play: "▶ Reproduciraj (P)",
+  play: "▶ Reproduciraj (P / Alt+P)",
   keyboardHint:
-    "Enter — provjeri odgovor ili sljedeće pitanje. P — reproduciraj izvan polja za unos.",
+    "Enter — provjeri ili nastavi. P — nakon odgovora. Alt+P — reproduciraj bilo kada.",
 
   audioError: "Nije moguće reproducirati zvuk.",
 
@@ -208,9 +208,9 @@ const en: Record<keyof typeof hr, string> = {
   staffDescription: "Music staff. Clef:",
   staffInstruction: "Identify the note.",
 
-  play: "▶ Play (P)",
+  play: "▶ Play (P / Alt+P)",
   keyboardHint:
-    "Enter — check or continue. P — play when outside the answer field.",
+    "Enter — check or continue. P — after answering. Alt+P — play anytime.",
 
   audioError: "Unable to play the note.",
 
@@ -376,8 +376,6 @@ const en: Record<keyof typeof hr, string> = {
     "Na crtovlju su samo glazbeni ključ i predznaci. Prepoznaj traženi tonalitet.",
 
   keyboardHintKeys: "Enter — provjeri odgovor ili prijeđi na sljedeće pitanje.",
-
-  
 };
 
 export type Language = "hr" | "en";

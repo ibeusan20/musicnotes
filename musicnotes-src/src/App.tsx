@@ -186,6 +186,7 @@ export default function App() {
   }, [state.question]);
 
   // P plays the exercise when the user is not typing.
+
   useEffect(() => {
     if (!canPlay) return;
 
@@ -194,7 +195,6 @@ export default function App() {
         event.key.toLowerCase() !== "p" ||
         event.repeat ||
         event.ctrlKey ||
-        event.altKey ||
         event.metaKey
       ) {
         return;
@@ -202,11 +202,15 @@ export default function App() {
 
       const target = event.target;
 
-      if (
+      const isTyping =
         target instanceof HTMLElement &&
         (target.isContentEditable ||
-          target.closest('input, textarea, select, [contenteditable="true"]'))
-      ) {
+          target.closest('input, textarea, select, [contenteditable="true"]'));
+
+      // Preserve P in answers (P53, Pov7...).
+      // After submitting, P plays even if the input remains focused.
+      // Alt+P always plays.
+      if (isTyping && !isAnswered && !event.altKey) {
         return;
       }
 
@@ -219,7 +223,7 @@ export default function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [canPlay, playCurrentQuestion]);
+  }, [canPlay, isAnswered, playCurrentQuestion]);
 
   // Stop audio when the component unmounts.
   useEffect(() => {
@@ -261,7 +265,7 @@ export default function App() {
             type="button"
             className="button secondary"
             onClick={playCurrentQuestion}
-            aria-keyshortcuts="P">
+            aria-keyshortcuts="P Alt+P">
             {t("play")}
           </button>
 
