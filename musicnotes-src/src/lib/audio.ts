@@ -1,21 +1,48 @@
-import type { Question } from "../domain/music";
 import { noteFrequency } from "../domain/audio";
-
-const DURATION = 1.8;
+import type { PlaybackEvent } from "../domain/playback";
 
 let audioContext: AudioContext | null = null;
 let isPlaying = false;
+let generation = 0;
 
-export async function playNote(question: Question): Promise<void> {
-  // Ignore repeated requests while a note is playing.
-  if (isPlaying) return;
+const activeOscillators = new Set<OscillatorNode>();
 
-  if (typeof window.AudioContext !== "function") {
-    throw new Error("Web Audio nije podržan.");
+/**
+ * Stop the active playback and invalidate pending async starts.
+ */
+export function stopPlayback(): void {
+  generation++;
+  isPlaying = false;
+
+  for (const oscillator of activeOscillators) {
+    try {
+      oscillator.stop();
+    } catch {
+      // The oscillator may already have stopped.
+    }
   }
 
-  // Lock immediately, including during AudioContext initialization.
+  activeOscillators.clear();
+}
+
+/**
+ * Schedule melodic or harmonic playback with the Web Audio API.
+ * Only one playback session can run at a time.
+ */
+export async function playEvents(
+  events: readonly PlaybackEvent[],
+): Promise<void> {
+  if (isPlaying || events.length === 0) return;
+
+  if (
+    typeof window === "undefined" ||
+    typeof window.AudioContext !== "function"
+  ) {
+    throw new Error("Web Audio is not supported.");
+  }
+
   isPlaying = true;
+  const playbackGeneration = ++generation;
 
   try {
     const context = audioContext ?? new AudioContext();
@@ -25,33 +52,64 @@ export async function playNote(question: Question): Promise<void> {
       await context.resume();
     }
 
-    const now = context.currentTime;
+    // The user may have changed the question while audio resumed.
+    if (playbackGeneration !== generation) return;
 
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
+    const baseTime = context.currentTime + 0.03;
 
-    oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(noteFrequency(question), now);
+    for (const event of events) {
+      const startTime = baseTime + event.start;
+      const endTime = startTime + event.duration;
 
-    // Attack (0.02s), sustain (1.5s), release (0.3s).
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.16, now + 0.02);
-    gain.gain.setValueAtTime(0.16, now + 1.5);
-    gain.gain.linearRampToValueAtTime(0, now + DURATION);
+      // Reduce gain when several tones sound simultaneously.
+      const volume = 0.16 / Math.sqrt(event.notes.length);
 
-    oscillator.connect(gain);
-    gain.connect(context.destination);
+      for (const note of event.notes) {
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
 
-    oscillator.onended = () => {
-      oscillator.disconnect();
-      gain.disconnect();
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(noteFrequency(note), startTime);
+
+        // Smooth attack and release to avoid audible clicks.
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(volume, startTime + 0.02);
+        gain.gain.setValueAtTime(
+          volume,
+          Math.max(startTime + 0.02, endTime - 0.12),
+        );
+        gain.gain.linearRampToValueAtTime(0, endTime);
+
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+
+        oscillator.onended = () => {
+          activeOscillators.delete(oscillator);
+          oscillator.disconnect();
+          gain.disconnect();
+
+          if (
+            playbackGeneration === generation &&
+            activeOscillators.size === 0
+          ) {
+            isPlaying = false;
+          }
+        };
+
+        activeOscillators.add(oscillator);
+        oscillator.start(startTime);
+        oscillator.stop(endTime);
+      }
+    }
+
+    if (activeOscillators.size === 0) {
       isPlaying = false;
-    };
-
-    oscillator.start(now);
-    oscillator.stop(now + DURATION);
+    }
   } catch (error) {
-    isPlaying = false;
+    if (playbackGeneration === generation) {
+      stopPlayback();
+    }
+
     throw error;
   }
 }

@@ -7,6 +7,7 @@ import {
   type Clef,
   type Letter,
   type Settings,
+  type Question,
 } from "./music";
 
 import type { AnswerResult } from "./quiz";
@@ -180,6 +181,31 @@ export function buildScaleQuestion(
     clef,
     notes,
   };
+}
+
+/**
+ * Resolve the actual sounding notes of a written scale.
+ * An explicit accidental overrides the key signature.
+ */
+export function soundingScaleNotes(question: ScaleQuestion): Question[] {
+  return question.notes.map((note): Question => {
+    const signature = signatureAlteration(question.keySignature, note.letter);
+
+    const accidental =
+      note.accidental !== "none"
+        ? note.accidental
+        : signature === 1
+          ? "sharp"
+          : signature === -1
+            ? "flat"
+            : "none";
+
+    return {
+      ...note,
+      clef: question.clef,
+      accidental,
+    };
+  });
 }
 
 function allowedTypes(settings: Settings): readonly ScaleType[] {

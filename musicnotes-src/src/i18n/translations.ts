@@ -18,7 +18,10 @@ const hr = {
   staffDescription: "Notno crtovlje. Ključ:",
   staffInstruction: "Prepoznaj notu.",
 
-  play: "▶ Reproduciraj notu (P)",
+  play: "▶ Reproduciraj (P)",
+  keyboardHint:
+    "Enter — provjeri odgovor ili sljedeće pitanje. P — reproduciraj izvan polja za unos.",
+
   audioError: "Nije moguće reproducirati zvuk.",
 
   yourAnswer: "Tvoj odgovor",
@@ -35,7 +38,6 @@ const hr = {
   answerIs: "Odgovor je",
   correctAnswer: "Točan odgovor:",
   waiting: "Upiši naziv note i pritisni Enter.",
-  keyboardHint: "Enter — provjeri odgovor ili prijeđi na sljedeću notu.",
   notationHint: "Nazivi nota: hrvatski sustav (H, cis, es, hes...).",
 
   stats: "Statistika",
@@ -182,7 +184,10 @@ const en: Record<keyof typeof hr, string> = {
   staffDescription: "Music staff. Clef:",
   staffInstruction: "Identify the note.",
 
-  play: "▶ Play note (P)",
+  play: "▶ Play (P)",
+  keyboardHint:
+    "Enter — check or continue. P — play when outside the answer field.",
+
   audioError: "Unable to play the note.",
 
   yourAnswer: "Your answer",
@@ -199,7 +204,6 @@ const en: Record<keyof typeof hr, string> = {
   answerIs: "The answer is",
   correctAnswer: "Correct answer:",
   waiting: "Type the note name and press Enter.",
-  keyboardHint: "Enter — check your answer or move to the next note.",
   notationHint: "Note names use Croatian notation (H, cis, es, hes...).",
 
   stats: "Statistics",
