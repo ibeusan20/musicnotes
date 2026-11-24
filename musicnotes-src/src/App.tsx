@@ -77,6 +77,7 @@ export default function App() {
     | "invalidInterval"
     | "invalidScale"
     | "invalidChord"
+    | "invalidKey"
     | null
   >(null);
 
@@ -96,6 +97,15 @@ export default function App() {
 
   const isAnswered = state.phase === "answered";
   const correctAnswer = practiceAnswerLabel(state.question, settings);
+
+  const questionTitle =
+    state.question.kind === "key-signature"
+      ? t(
+          state.question.value.quality === "major"
+            ? "keyQuestionMajor"
+            : "keyQuestionMinor",
+        )
+      : t(copy.question);
 
   const displayedAnswer =
     state.question.kind === "chord" ? (
@@ -245,14 +255,23 @@ export default function App() {
     const result = checkPracticeAnswer(answer, state.question, settings);
 
     if (result === "invalid") {
-      setInputError(
-        state.question.kind === "note" &&
-          settings.answerMode === "letter-octave"
-          ? "invalidOctave"
-          : copy.invalid,
-      );
+      canPlay && (
+        <div className="audio-controls">
+          <button
+            type="button"
+            className="button secondary"
+            onClick={playCurrentQuestion}
+            aria-keyshortcuts="P">
+            {t("play")}
+          </button>
 
-      return;
+          {audioError && (
+            <p className="input-error" role="alert">
+              {t("audioError")}
+            </p>
+          )}
+        </div>
+      );
     }
 
     dispatch({
@@ -335,6 +354,7 @@ export default function App() {
               <option value="scales">{t("modeScalesShort")}</option>
               <option value="modes">{t("modeModesShort")}</option>
               <option value="chords">{t("modeChordsShort")}</option>
+              <option value="keys">{t("modeKeysShort")}</option>
             </select>
           </label>
 
@@ -379,7 +399,7 @@ export default function App() {
             <div className="section-heading">
               <div>
                 <span className="eyebrow">{t(copy.heading)}</span>
-                <h2>{t(copy.question)}</h2>
+                <h2>{questionTitle}</h2>
               </div>
 
               <span className="clef-tag">{clefName}</span>
@@ -391,25 +411,24 @@ export default function App() {
                 `${t("staffDescription")} ${clefName}. ` + t(copy.instruction)
               }
             />
-            
-{canPlay && (
-  <div className="audio-controls">
-    <button
-      type="button"
-      className="button secondary"
-      onClick={playCurrentQuestion}
-      aria-keyshortcuts="P"
-    >
-      {t("play")}
-    </button>
 
-    {audioError && (
-      <p className="input-error" role="alert">
-        {t("audioError")}
-      </p>
-    )}
-  </div>
-)}
+            {canPlay && (
+              <div className="audio-controls">
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={playCurrentQuestion}
+                  aria-keyshortcuts="P">
+                  {t("play")}
+                </button>
+
+                {audioError && (
+                  <p className="input-error" role="alert">
+                    {t("audioError")}
+                  </p>
+                )}
+              </div>
+            )}
 
             <form className="answer-form" onSubmit={handleSubmit}>
               <label htmlFor="note-answer">{t("yourAnswer")}</label>
@@ -504,7 +523,9 @@ export default function App() {
               </p>
             )}
 
-            <p className="keyboard-hint">{t("keyboardHint")}</p>
+            <p className="keyboard-hint">
+              {t(state.mode === "keys" ? "keyboardHintKeys" : "keyboardHint")}
+            </p>
 
             <p className="notation-hint">{notationHint}</p>
           </section>

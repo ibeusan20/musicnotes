@@ -95,6 +95,12 @@ function parseSettings(value: unknown, mode: PracticeMode): Settings {
       VALID_SETTINGS.chordLevel,
       fallback.chordLevel,
     ),
+
+    keyLevel: parseOption(
+      value.keyLevel,
+      VALID_SETTINGS.keyLevel,
+      fallback.keyLevel,
+    ),
   };
 }
 
@@ -187,6 +193,7 @@ const VALID_SETTINGS = {
   intervalLevel: ["common", "all"],
   scaleLevel: ["basic", "all"],
   chordLevel: ["basic", "triads", "sevenths", "all"],
+  keyLevel: ["major", "minor", "mixed"],
 } as const satisfies {
   [K in Exclude<keyof Settings, "practiceMode">]: readonly Settings[K][];
 };

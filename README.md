@@ -15,6 +15,8 @@ built with React, TypeScript, Vite and VexFlow.
 - Croatian and English interface
 - Light, dark and system themes
 - Local progress persistence
+- Key signature recognition: 15 major and 15 relative minor keys
+- Audio playback for notes, melodic intervals, chords, scales and modes
 
 ## Local development
 

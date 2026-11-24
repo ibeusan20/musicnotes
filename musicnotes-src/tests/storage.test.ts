@@ -222,4 +222,59 @@ describe("Lokalno spremanje", () => {
     // Invalid settings must not delete valid statistics.
     expect(loaded.profiles.chords.total.correct).toBe(17);
   });
+
+  it("adds a key profile without losing existing statistics", () => {
+    const storage = createStorage();
+    vi.stubGlobal("localStorage", storage);
+
+    const profiles = createDefaultProfiles();
+    profiles.notes.total.correct = 25;
+    profiles.chords.total.correct = 12;
+
+    // Saved v2 data before the key recognition mode existed.
+    storage.setItem(
+      "musicnotes.v2",
+      JSON.stringify({
+        version: 2,
+        mode: "notes",
+        profiles: {
+          notes: profiles.notes,
+          intervals: profiles.intervals,
+          scales: profiles.scales,
+          modes: profiles.modes,
+          chords: profiles.chords,
+        },
+        legacyTotal: null,
+      }),
+    );
+
+    const loaded = loadStoredData();
+
+    expect(loaded.profiles.notes.total.correct).toBe(25);
+    expect(loaded.profiles.chords.total.correct).toBe(12);
+    expect(loaded.profiles.keys.total.correct).toBe(0);
+    expect(loaded.profiles.keys.settings.keyLevel).toBe("mixed");
+  });
+
+  it("persists key recognition settings and statistics", () => {
+    vi.stubGlobal("localStorage", createStorage());
+
+    const profiles = createDefaultProfiles();
+    profiles.keys.settings.keyLevel = "minor";
+    profiles.keys.settings.clef = "alto";
+    profiles.keys.total.correct = 9;
+
+    saveStoredData({
+      mode: "keys",
+      profiles,
+      legacyTotal: null,
+    });
+
+    const loaded = loadStoredData();
+
+    expect(loaded.mode).toBe("keys");
+    expect(loaded.profiles.keys.settings.keyLevel).toBe("minor");
+    expect(loaded.profiles.keys.settings.clef).toBe("alto");
+    expect(loaded.profiles.keys.total.correct).toBe(9);
+  });
 });

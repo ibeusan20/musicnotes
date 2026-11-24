@@ -102,4 +102,16 @@ describe("Exercise playback", () => {
       );
     }
   });
+  it("does not play key signature questions", () => {
+    const events = practicePlaybackEvents({
+      kind: "key-signature",
+      value: {
+        keySignature: "D",
+        quality: "major",
+        clef: "treble",
+      },
+    });
+
+    expect(events).toEqual([]);
+  });
 });

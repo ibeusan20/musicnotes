@@ -50,5 +50,8 @@ export function practicePlaybackEvents(
         start: index * 0.43,
         duration: index === notes.length - 1 ? 0.85 : 0.38,
       }));
+
+    case "key-signature":
+      return [];
   }
 }

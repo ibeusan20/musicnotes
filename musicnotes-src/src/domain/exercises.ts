@@ -27,13 +27,20 @@ import {
   type ChordQuestion,
 } from "./chords";
 
+import {
+  generateKeySignatureQuestion,
+  keyAnswerLabel,
+  checkKeyAnswer,
+  type KeySignatureQuestion,
+} from "./keys";
 import { checkAnswer, type AnswerResult } from "./quiz";
 
 export type PracticeQuestion =
   | { kind: "note"; value: Question }
   | { kind: "interval"; value: IntervalQuestion }
   | { kind: "scale"; value: ScaleQuestion }
-  | { kind: "chord"; value: ChordQuestion };
+  | { kind: "chord"; value: ChordQuestion }
+  | { kind: "key-signature"; value: KeySignatureQuestion };
 
 export function generatePracticeQuestion(
   settings: Settings,
@@ -67,6 +74,15 @@ export function generatePracticeQuestion(
         ),
       };
 
+    case "keys":
+      return {
+        kind: "key-signature",
+        value: generateKeySignatureQuestion(
+          settings,
+          previous?.kind === "key-signature" ? previous.value : undefined,
+        ),
+      };
+
     case "scales":
     case "modes":
       return {
@@ -95,6 +111,9 @@ export function practiceAnswerLabel(
 
     case "chord":
       return identifyChord(question.value) ?? "";
+
+    case "key-signature":
+      return keyAnswerLabel(question.value);
   }
 }
 
@@ -115,6 +134,9 @@ export function checkPracticeAnswer(
 
     case "chord":
       return checkChordAnswer(answer, question.value);
+
+    case "key-signature":
+      return checkKeyAnswer(answer, question.value);
   }
 }
 
@@ -128,6 +150,7 @@ export function practiceQuestionClef(question: PracticeQuestion): Clef {
 
     case "scale":
     case "chord":
+    case "key-signature":
       return question.value.clef;
   }
 }

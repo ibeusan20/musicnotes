@@ -33,6 +33,7 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isScale = question.kind === "scale";
   const isChord = question.kind === "chord";
+  const isKeySignature = question.kind === "key-signature";
 
   useEffect(() => {
     const container = containerRef.current;
@@ -44,7 +45,9 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
         ? [question.value]
         : question.kind === "interval"
           ? [question.value.first, question.value.second]
-          : question.value.notes;
+          : question.kind === "key-signature"
+            ? []
+            : question.value.notes;
 
     const clef = practiceQuestionClef(question);
 
@@ -56,7 +59,11 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
 
       // Eight notes and up to seven key-signature accidentals
       // need enough horizontal space on narrow screens.
-      const rendererWidth = isScale ? Math.max(width, 660) : width;
+      const rendererWidth = isScale
+        ? Math.max(width, 660)
+        : isKeySignature
+          ? Math.max(width, 330)
+          : width;
 
       container.replaceChildren();
 
@@ -65,18 +72,21 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
       renderer.resize(rendererWidth, STAFF_HEIGHT);
 
       const context = renderer.getContext();
-      const scale = isScale ? 1 : STAFF_SCALE;
+      const scale = isScale || isKeySignature ? 1 : STAFF_SCALE;
 
       context.scale(scale, scale);
 
       const logicalWidth = rendererWidth / scale;
 
       // SHorter stave for a single note.
+
       const staveWidth = isScale
         ? logicalWidth - 24
-        : isChord
-          ? Math.min(logicalWidth - 12, 180)
-          : Math.min(logicalWidth - 12, notes.length === 1 ? 100 : 130);
+        : isKeySignature
+          ? Math.min(logicalWidth - 24, 290)
+          : isChord
+            ? Math.min(logicalWidth - 12, 180)
+            : Math.min(logicalWidth - 12, notes.length === 1 ? 100 : 130);
 
       // Horizontal centering.
       const staveX = (logicalWidth - staveWidth) / 2;
@@ -85,11 +95,13 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
 
       stave.addClef(clef);
 
-      if (question.kind === "scale") {
+      if (question.kind === "scale" || question.kind === "key-signature") {
         stave.addKeySignature(question.value.keySignature);
       }
-
       stave.setContext(context).draw();
+
+      // Key signature exercises contain no written notes.
+      if (isKeySignature) return;
 
       // VexFlow uses B, but we display H to the user (croatian notation).
 
@@ -144,7 +156,11 @@ export default function MusicStaff({ question, ariaLabel }: Props) {
 
   return (
     <div
-      className={isScale ? "staff-surface scale-staff" : "staff-surface"}
+      className={
+        isScale || isKeySignature
+          ? "staff-surface scale-staff"
+          : "staff-surface"
+      }
       role="img"
       aria-label={ariaLabel}>
       <div
